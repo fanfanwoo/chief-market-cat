@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>CMC · Global Command Deck</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<style>
+  :root{
+    --bg:#07090f; --panel:#0d1220; --panel2:#111830; --border:rgba(96,130,190,.22);
+    --text:#dde7ff; --dim:#7b8bb0; --long:#2fd08c; --short:#ff5d6c; --unclear:#f5b942;
+    --accent:#5aa2ff; --open:#2fd08c; --closed:#3a4665;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--text);overflow:hidden;
+    font:13px/1.45 "SF Pro Text",-apple-system,Segoe UI,Roboto,sans-serif}
+  #app{display:grid;height:100vh;gap:10px;padding:10px;
+    grid-template-columns:250px 1fr 330px;
+    grid-template-rows:58px 1fr 120px;
+    grid-template-areas:"hd hd hd" "left globe watch" "feed feed watch"}
+  /* presentation / focus mode */
+  body.focus #app{grid-template-columns:1fr;grid-template-rows:58px 1fr;
+    grid-template-areas:"hd" "globe"}
+  body.focus #left, body.focus #watch, body.focus #feed{display:none}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;overflow:hidden;
+    display:flex;flex-direction:column}
+  .card h2{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--dim);
+    padding:12px 14px 8px;flex:none}
+  /* header */
+  #hd{grid-area:hd;flex-direction:row;align-items:center;gap:16px;padding:0 18px}
+  #hd .logo{font-weight:700;font-size:15px;letter-spacing:.5px}
+  #hd .logo span{color:var(--accent)}
+  .kpi{display:flex;flex-direction:column;padding:0 14px;border-left:1px solid var(--border)}
+  .kpi label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--dim)}
+  .kpi b{font-size:14px;font-weight:600}
+  #hd .right{margin-left:auto;font-size:11px;color:var(--dim);text-align:right}
+  #hd .safety{font-size:10px;font-weight:700;letter-spacing:.6px;color:var(--unclear)}
+  .key{display:inline-block;border:1px solid var(--border);border-radius:4px;padding:0 5px;
+    font-size:10px;color:var(--text);background:var(--panel2)}
+  /* left: sessions */
+  #left{grid-area:left}
+  #sessions{overflow-y:auto;padding:0 10px 10px}
+  .sess{display:flex;align-items:center;gap:10px;padding:9px 8px;border-radius:8px;cursor:pointer}
+  .sess:hover{background:var(--panel2)}
+  .sess .st{width:8px;height:8px;border-radius:50%;flex:none}
+  .sess .nm{flex:1}
+  .sess .nm b{display:block;font-size:13px}
+  .sess .nm span{font-size:11px;color:var(--dim)}
+  .sess .n{font-size:11px;color:var(--dim)}
+  /* globe */
+  #globe-card{grid-area:globe;position:relative;background:#04060d}
+  #globe{position:absolute;inset:0}
+  #globe-title{position:absolute;top:12px;left:14px;z-index:3;font-size:11px;letter-spacing:1.2px;
+    text-transform:uppercase;color:var(--dim)}
+  #globe-legend{position:absolute;bottom:12px;left:14px;z-index:3;font-size:11px;color:var(--dim);
+    background:rgba(13,18,32,.8);padding:8px 12px;border-radius:8px;border:1px solid var(--border)}
+  #globe-legend span{display:inline-block;width:8px;height:8px;border-radius:50%;margin:0 4px 0 10px}
+  /* memo overlay (focus mode) */
+  #memo{position:absolute;top:14px;right:14px;bottom:14px;width:310px;z-index:4;overflow-y:auto;
+    background:rgba(13,20,38,.9);border:1px solid var(--border);border-radius:14px;
+    backdrop-filter:blur(10px);padding:16px;display:none}
+  #memo.open{display:block}
+  #memo .close{position:absolute;top:10px;right:14px;color:var(--dim);cursor:pointer;font-size:18px}
+  #memo h2{padding:0;margin-bottom:10px}
+  #memo h3{font-size:19px;margin:2px 0}
+  #memo .sub{color:var(--dim);font-size:12px;margin-bottom:12px}
+  .tag{display:inline-block;font-size:11px;padding:3px 9px;border-radius:6px;margin:0 6px 8px 0;
+    border:1px solid var(--border);color:var(--text)}
+  .bar-row{margin:9px 0}
+  .bar-row label{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);margin-bottom:4px}
+  .bar{height:6px;border-radius:4px;background:rgba(255,255,255,.08)}
+  .bar i{display:block;height:100%;border-radius:4px;background:var(--accent)}
+  .memo-block{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:13px}
+  .memo-block b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin-bottom:4px}
+  .decision-lbl{margin-top:14px;padding:10px 12px;border-radius:10px;font-weight:600;font-size:13px;text-align:center}
+  .d-monitor{background:rgba(122,140,180,.18);color:#aebcdc}
+  .d-research{background:rgba(90,162,255,.18);color:#8fc0ff}
+  .d-paper{background:rgba(47,208,140,.16);color:var(--long)}
+  .d-reject{background:rgba(255,93,108,.16);color:var(--short)}
+  .disclaimer{font-size:11px;color:var(--dim);margin-top:12px;font-style:italic}
+  /* watchlist */
+  #watch{grid-area:watch}
+  #watch-list{overflow-y:auto;padding:0 10px 10px;flex:1}
+  .wrow{padding:10px 10px;border-radius:10px;cursor:pointer;border:1px solid transparent;margin-bottom:6px}
+  .wrow:hover{background:var(--panel2)}
+  .wrow.sel{border-color:var(--accent);background:var(--panel2)}
+  .wrow .top{display:flex;align-items:center;gap:8px}
+  .wrow .rank{font-size:11px;color:var(--dim);width:18px}
+  .wrow b{font-size:13px;flex:1}
+  .dirtag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px}
+  .wrow .meta{font-size:11px;color:var(--dim);margin:4px 0 6px 26px}
+  .scorebar{height:4px;border-radius:3px;background:rgba(255,255,255,.07);margin-left:26px}
+  .scorebar i{display:block;height:100%;border-radius:3px;background:var(--accent)}
+  .wrow .decision{font-size:10px;margin:6px 0 0 26px;color:var(--dim)}
+  #held{flex:none;border-top:1px solid var(--border);padding:10px 14px;font-size:11px;color:var(--dim)}
+  #held b{color:var(--unclear)}
+  /* feed */
+  #feed{grid-area:feed}
+  #feed-list{display:flex;gap:10px;overflow-x:auto;padding:4px 12px 12px}
+  .ev{flex:none;width:250px;background:var(--panel2);border:1px solid var(--border);
+    border-radius:10px;padding:9px 11px}
+  .ev time{font-size:10px;color:var(--accent);letter-spacing:.5px}
+  .ev p{font-size:12px;margin-top:3px}
+  .ev .src{font-size:10px;color:var(--dim);margin-top:4px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="card" id="hd">
+    <div class="logo">CHIEF MARKET CAT <span>· COMMAND DECK</span></div>
+    <div class="kpi"><label>Market regime</label><b>Risk-on, fragile</b></div>
+    <div class="kpi"><label>Risk tone</label><b style="color:var(--unclear)">Cautious</b></div>
+    <div class="kpi"><label>Signals scored</label><b id="k-scored">–</b></div>
+    <div class="kpi"><label>Held for review</label><b id="k-held" style="color:var(--unclear)">–</b></div>
+    <div class="kpi"><label>Portfolio VaR</label><b>1.4% <span style="color:var(--dim);font-weight:400">(cap 2%)</span></b></div>
+    <div class="safety">NO LIVE TRADES APPROVED</div>
+    <div class="right">Demo run · mock data · not financial advice<br/>
+      Press <span class="key">F</span> for presentation mode · <span class="key">Esc</span> to exit</div>
+  </div>
+
+  <div class="card" id="left">
+    <h2>Market sessions</h2>
+    <div id="sessions"></div>
+  </div>
+
+  <div class="card" id="globe-card">
+    <div id="globe-title">Signal map · drag to rotate · click a hub or watchlist row</div>
+    <div id="globe"></div>
+    <div id="globe-legend">Direction:<span style="background:var(--long)"></span>long
+      <span style="background:var(--short)"></span>short
+      <span style="background:var(--unclear)"></span>unclear ·
+      bar height = watchlist score · arc = correlation · pulse = urgency</div>
+    <div id="memo">
+      <span class="close" onclick="closeMemo()">✕</span>
+      <h2>Decision memo</h2>
+      <div id="memo-body"></div>
+    </div>
+  </div>
+
+  <div class="card" id="watch">
+    <h2>Ranked watchlist</h2>
+    <div id="watch-list"></div>
+    <div id="held"><b>⚠ Held for review:</b> <span id="held-txt"></span></div>
+  </div>
+
+  <div class="card" id="feed">
+    <h2>Macro & event feed</h2>
+    <div id="feed-list"></div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/globe.gl"></script>
+<script>
+/* Mock signals shaped like cmc/schemas/signals.py (SignalItem).
+   Score fields use the schema names; watchlist_score + rank are computed
+   below with the same weights as config/pipeline.yaml → score_watchlist(). */
+const SIGNALS = [
+ {id:"sig-xau", asset:"Gold (XAU)", market:"Metals", region:"europe", hub:"Zurich", lat:47.37, lng:8.54,
+  signal_type:"breakout", direction:"long", confidence:0.75,
+  relevance_score:0.8, evidence_score:0.8, impact_score:0.7, urgency_score:0.6, liquidity_score:0.95,
+  thesis:"All-time-high breakout with real yields falling and CB buying confirmed.",
+  invalidation:"Weekly close back below breakout level.",
+  decision:"Paper trade candidate"},
+ {id:"sig-spx", asset:"S&P 500 (SPX)", market:"US equities", region:"us", hub:"New York", lat:40.71, lng:-74.0,
+  signal_type:"trend_continuation", direction:"long", confidence:0.72,
+  relevance_score:0.85, evidence_score:0.78, impact_score:0.7, urgency_score:0.35, liquidity_score:0.95,
+  thesis:"Breadth improving with earnings revisions positive; trend intact above 50-day.",
+  invalidation:"Daily close below 50-day MA with breadth deterioration.",
+  decision:"Paper trade candidate"},
+ {id:"sig-brent", asset:"Brent Crude", market:"Energy futures", region:"europe", hub:"London (ICE)", lat:51.5, lng:-0.08,
+  signal_type:"breakout", direction:"long", confidence:0.68,
+  relevance_score:0.75, evidence_score:0.7, impact_score:0.8, urgency_score:0.75, liquidity_score:0.9,
+  thesis:"Range breakout on volume with backwardation steepening.",
+  invalidation:"Close back inside range within 2 sessions (failed breakout).",
+  decision:"Paper trade candidate"},
+ {id:"sig-jpy", asset:"USD/JPY", market:"FX", region:"asia", hub:"Tokyo", lat:35.68, lng:139.69,
+  signal_type:"macro_regime_shift", direction:"short", confidence:0.66,
+  relevance_score:0.8, evidence_score:0.7, impact_score:0.8, urgency_score:0.55, liquidity_score:0.98,
+  thesis:"BoJ normalization path repriced; rate differential compressing.",
+  invalidation:"BoJ walks back guidance or US CPI upside surprise.",
+  decision:"Research deeper"},
+ {id:"sig-wti", asset:"WTI Crude", market:"US futures", region:"us", hub:"Chicago (CME)", lat:41.88, lng:-87.63,
+  signal_type:"volatility_expansion", direction:"short", confidence:0.61,
+  relevance_score:0.7, evidence_score:0.65, impact_score:0.75, urgency_score:0.7, liquidity_score:0.85,
+  thesis:"Inventory build + OPEC quota slippage; vol regime shifting higher.",
+  invalidation:"Draw >2σ in next EIA report or supply disruption headline verified.",
+  decision:"Research deeper"},
+ {id:"sig-nky", asset:"Nikkei 225", market:"JP equities", region:"asia", hub:"Tokyo", lat:35.6, lng:139.77,
+  signal_type:"trend_continuation", direction:"long", confidence:0.63,
+  relevance_score:0.65, evidence_score:0.65, impact_score:0.6, urgency_score:0.35, liquidity_score:0.9,
+  thesis:"Corporate reform flows persistent; trend intact despite FX headwind.",
+  invalidation:"USDJPY < 140 breaks the earnings-translation support.",
+  decision:"Research deeper"},
+ {id:"sig-nvda", asset:"NVDA", market:"US equities", region:"us", hub:"New York", lat:40.75, lng:-73.9,
+  signal_type:"earnings_event", direction:"unclear", confidence:0.55,
+  relevance_score:0.7, evidence_score:0.6, impact_score:0.85, urgency_score:0.8, liquidity_score:0.9,
+  thesis:"Earnings in 3 sessions; implied move elevated vs. realized.",
+  invalidation:"Event passes; re-classify post-print.",
+  decision:"Monitor only"},
+ {id:"sig-btc", asset:"BTC", market:"Crypto", region:"asia", hub:"Singapore", lat:1.35, lng:103.82,
+  signal_type:"sentiment_dislocation", direction:"long", confidence:0.57,
+  relevance_score:0.6, evidence_score:0.55, impact_score:0.65, urgency_score:0.5, liquidity_score:0.85,
+  thesis:"Funding reset to neutral after flush; spot ETF inflows resumed.",
+  invalidation:"ETF outflows resume or funding re-leverages fast.",
+  decision:"Research deeper"},
+ {id:"sig-nifty", asset:"NIFTY 50", market:"IN equities", region:"asia", hub:"Mumbai", lat:19.08, lng:72.88,
+  signal_type:"trend_continuation", direction:"long", confidence:0.58,
+  relevance_score:0.6, evidence_score:0.6, impact_score:0.55, urgency_score:0.3, liquidity_score:0.85,
+  thesis:"Domestic flows steady; valuations rich but trend undisturbed.",
+  invalidation:"FII outflows >$1B/week for 2 weeks.",
+  decision:"Monitor only"},
+ {id:"sig-cu", asset:"Copper (SHFE)", market:"Metals", region:"asia", hub:"Shanghai", lat:31.23, lng:121.47,
+  signal_type:"mean_reversion", direction:"long", confidence:0.52,
+  relevance_score:0.6, evidence_score:0.55, impact_score:0.6, urgency_score:0.4, liquidity_score:0.8,
+  thesis:"Inventory drawdown vs. oversold price; grid capex orders confirmed.",
+  invalidation:"Inventory rebuild for 2 consecutive weeks.",
+  decision:"Research deeper"},
+ {id:"sig-dax", asset:"DAX", market:"EU equities", region:"europe", hub:"Frankfurt", lat:50.11, lng:8.68,
+  signal_type:"policy_event", direction:"unclear", confidence:0.48,
+  relevance_score:0.65, evidence_score:0.6, impact_score:0.7, urgency_score:0.65, liquidity_score:0.9,
+  thesis:"ECB decision Thursday; positioning skewed dovish.",
+  invalidation:"Event risk — no directional edge pre-announcement.",
+  decision:"Monitor only"},
+ {id:"sig-ftse", asset:"FTSE 100", market:"UK equities", region:"europe", hub:"London", lat:51.51, lng:-0.13,
+  signal_type:"mean_reversion", direction:"long", confidence:0.50,
+  relevance_score:0.55, evidence_score:0.55, impact_score:0.45, urgency_score:0.4, liquidity_score:0.9,
+  thesis:"3σ underperformance vs. Stoxx with no idiosyncratic driver.",
+  invalidation:"Gilt yields spike on fiscal headline.",
+  decision:"Research deeper"},
+ {id:"sig-aud", asset:"AUD/USD", market:"FX", region:"asia", hub:"Sydney", lat:-33.87, lng:151.21,
+  signal_type:"trend_continuation", direction:"long", confidence:0.46,
+  relevance_score:0.5, evidence_score:0.5, impact_score:0.4, urgency_score:0.3, liquidity_score:0.95,
+  thesis:"Commodity beta following copper; weak standalone evidence.",
+  invalidation:"Copper thesis invalidated → this follows.",
+  decision:"Monitor only"},
+ {id:"sig-ewz", asset:"Brazil (EWZ)", market:"LatAm equities", region:"latam", hub:"São Paulo", lat:-23.55, lng:-46.63,
+  signal_type:"sentiment_dislocation", direction:"long", confidence:0.44,
+  relevance_score:0.45, evidence_score:0.4, impact_score:0.5, urgency_score:0.3, liquidity_score:0.6,
+  thesis:"Sentiment washed out vs. improving terms of trade; weak evidence so far.",
+  invalidation:"BRL breaks lower with commodity complex.",
+  decision:"Monitor only"}
+];
+
+/* Held by the verify gate — never reaches score_watchlist, so it is
+   not plotted or ranked; surfaced in the held-for-review strip only. */
+const HELD = [{asset:"Hang Seng (HSI)", reason:"liquidity_stress — single-source, unverified"}];
+
+/* Cross-asset correlation pairs (static map for the demo) */
+const CORRELATIONS = [
+ ["sig-brent","sig-wti",0.92],["sig-spx","sig-dax",0.80],
+ ["sig-jpy","sig-nky",0.74],["sig-aud","sig-cu",0.65],
+ ["sig-spx","sig-nifty",0.60],["sig-btc","sig-spx",0.52],
+ ["sig-xau","sig-jpy",0.45]
+];
+
+const SESSIONS = [
+ {ex:"NYSE / Nasdaq", city:"New York", lat:40.71, lng:-74.0, open:true},
+ {ex:"CME", city:"Chicago", lat:41.88, lng:-87.63, open:true},
+ {ex:"B3", city:"São Paulo", lat:-23.55, lng:-46.63, open:true},
+ {ex:"LSE / ICE", city:"London", lat:51.51, lng:-0.13, open:false},
+ {ex:"Xetra", city:"Frankfurt", lat:50.11, lng:8.68, open:false},
+ {ex:"SIX", city:"Zurich", lat:47.37, lng:8.54, open:false},
+ {ex:"NSE", city:"Mumbai", lat:19.08, lng:72.88, open:false},
+ {ex:"SGX", city:"Singapore", lat:1.35, lng:103.82, open:false},
+ {ex:"SSE / SHFE", city:"Shanghai", lat:31.23, lng:121.47, open:false},
+ {ex:"HKEX", city:"Hong Kong", lat:22.32, lng:114.17, open:false},
+ {ex:"TSE", city:"Tokyo", lat:35.68, lng:139.69, open:false},
+ {ex:"ASX", city:"Sydney", lat:-33.87, lng:151.21, open:false}
+];
+
+const EVENTS = [
+ {t:"Thu 12:15 UTC", p:"ECB rate decision + press conference", s:"policy · Frankfurt"},
+ {t:"Wed 14:30 UTC", p:"EIA crude inventories — key for WTI vol-expansion signal", s:"macro · US"},
+ {t:"Fri 12:30 UTC", p:"US nonfarm payrolls", s:"macro · US"},
+ {t:"Mon (next wk)", p:"NVDA earnings — implied move 8.2%", s:"earnings · US"},
+ {t:"Ongoing", p:"BoJ officials speaking through the week — USDJPY sensitivity high", s:"policy · Japan"},
+ {t:"Ongoing", p:"OPEC+ quota compliance chatter — verify before acting", s:"news · energy"}
+];
+
+const DIR_COLOR = {long:"#2fd08c", short:"#ff5d6c", unclear:"#f5b942"};
+const DEC_CLASS = {"Monitor only":"d-monitor","Research deeper":"d-research",
+  "Paper trade candidate":"d-paper","Reject / no trade":"d-reject",
+  "Live candidate, human approval required":"d-paper"};
+
+/* Mirrors cmc/pipeline/score_watchlist.py with config/pipeline.yaml weights */
+const W = {relevance:0.25, evidence:0.25, impact:0.2, urgency:0.15, liquidity:0.1, confidence:0.05};
+SIGNALS.forEach(s=>{
+  s.watchlist_score = W.relevance*s.relevance_score + W.evidence*s.evidence_score
+    + W.impact*s.impact_score + W.urgency*s.urgency_score
+    + W.liquidity*s.liquidity_score + W.confidence*s.confidence;
+});
+SIGNALS.sort((a,b)=>b.watchlist_score-a.watchlist_score);
+SIGNALS.forEach((s,i)=>s.rank=i+1);
+const byId = Object.fromEntries(SIGNALS.map(s=>[s.id,s]));
+
+document.getElementById("k-scored").textContent = SIGNALS.length;
+document.getElementById("k-held").textContent = HELD.length;
+document.getElementById("held-txt").textContent = HELD.map(h=>`${h.asset} (${h.reason})`).join(" · ");
+
+/* globe — idea-1 visuals: night earth, star universe, animated arcs, pulse rings */
+const gEl = document.getElementById("globe");
+const world = Globe()
+  (gEl)
+  .globeImageUrl("https://unpkg.com/three-globe/example/img/earth-night.jpg")
+  .bumpImageUrl("https://unpkg.com/three-globe/example/img/earth-topology.png")
+  .backgroundImageUrl("https://unpkg.com/three-globe/example/img/night-sky.png")
+  .atmosphereColor("#3a6fc4").atmosphereAltitude(0.18)
+  .width(gEl.parentElement.clientWidth).height(gEl.parentElement.clientHeight)
+  .pointsData(SIGNALS)
+  .pointLat("lat").pointLng("lng")
+  .pointColor(d=>DIR_COLOR[d.direction])
+  .pointAltitude(d=>0.03+d.watchlist_score*0.28)
+  .pointRadius(d=>0.35+d.confidence*0.4)
+  .pointLabel(d=>`<div style="font:12px sans-serif;background:rgba(8,12,24,.92);border:1px solid rgba(96,130,190,.4);
+      padding:7px 10px;border-radius:8px;color:#dde7ff"><b>#${d.rank} ${d.asset}</b> · score ${d.watchlist_score.toFixed(2)}<br/>
+      <span style="color:${DIR_COLOR[d.direction]}">${d.direction.toUpperCase()}</span> · ${d.signal_type.replaceAll("_"," ")} · conf ${d.confidence.toFixed(2)}</div>`)
+  .onPointClick(d=>{
+    if(document.body.classList.contains("focus")){ openMemo(d); fly(d.lat, d.lng); }
+    else selectSignal(d.id, true);
+  })
+  .arcsData(CORRELATIONS)
+  .arcStartLat(a=>byId[a[0]].lat).arcStartLng(a=>byId[a[0]].lng)
+  .arcEndLat(a=>byId[a[1]].lat).arcEndLng(a=>byId[a[1]].lng)
+  .arcColor(a=>{const c="rgba(90,162,255,"; return [c+(0.15+a[2]*0.5)+")", c+(0.15+a[2]*0.5)+")"];})
+  .arcStroke(a=>0.2+a[2]*0.5)
+  .arcAltitudeAutoScale(0.35)
+  .arcDashLength(0.45).arcDashGap(0.25).arcDashAnimateTime(a=>4200-a[2]*2500)
+  .arcLabel(a=>`<div style="font:12px sans-serif;background:rgba(8,12,24,.92);padding:6px 9px;border-radius:6px;color:#dde7ff">
+      ${byId[a[0]].asset} ↔ ${byId[a[1]].asset} · ρ ≈ ${a[2].toFixed(2)}</div>`)
+  .ringsData(SIGNALS.filter(s=>s.urgency_score>=0.65))
+  .ringLat("lat").ringLng("lng")
+  .ringColor(()=>t=>`rgba(255,255,255,${Math.max(0,0.55*(1-t))})`)
+  .ringMaxRadius(4).ringPropagationSpeed(1.6).ringRepeatPeriod(1400)
+  .labelsData(SESSIONS)
+  .labelLat("lat").labelLng("lng")
+  .labelText(s=>s.city)
+  .labelSize(0.9).labelDotRadius(0.35)
+  .labelColor(s=>s.open ? "#2fd08c" : "#5a6a94")
+  .labelLabel(s=>`<div style="font:12px sans-serif;background:rgba(8,12,24,.92);padding:6px 9px;border-radius:6px;color:#dde7ff">
+      ${s.ex} · ${s.open?"OPEN":"closed"}</div>`);
+world.controls().autoRotate = true;
+world.controls().autoRotateSpeed = 0.5;
+world.pointOfView({lat:25, lng:0, altitude:2.1});
+["mousedown","touchstart","wheel"].forEach(ev=>gEl.addEventListener(ev,()=>{world.controls().autoRotate=false;},{passive:true}));
+new ResizeObserver(()=>{ world.width(gEl.parentElement.clientWidth).height(gEl.parentElement.clientHeight); }).observe(gEl.parentElement);
+
+/* sessions list */
+document.getElementById("sessions").innerHTML = SESSIONS.map(s=>{
+  const n = SIGNALS.filter(x=>x.hub===s.city || x.hub.startsWith(s.city+" ")).length;
+  return `<div class="sess" onclick="fly(${s.lat},${s.lng})">
+    <span class="st" style="background:${s.open?"var(--open)":"var(--closed)"}"></span>
+    <span class="nm"><b>${s.city}</b><span>${s.ex} · ${s.open?"open":"closed"}</span></span>
+    <span class="n">${n||""}${n?" sig":""}</span></div>`;
+}).join("");
+
+/* watchlist */
+document.getElementById("watch-list").innerHTML = SIGNALS.map(s=>`
+  <div class="wrow" id="row-${s.id}" onclick="selectSignal('${s.id}')">
+    <div class="top"><span class="rank">${s.rank}</span><b>${s.asset}</b>
+      <span class="dirtag" style="background:${DIR_COLOR[s.direction]}22;color:${DIR_COLOR[s.direction]}">${s.direction.toUpperCase()}</span></div>
+    <div class="meta">${s.signal_type.replaceAll("_"," ")} · ${s.hub} · conf ${s.confidence.toFixed(2)}</div>
+    <div class="scorebar"><i style="width:${s.watchlist_score*100}%"></i></div>
+    <div class="decision">→ ${s.decision}</div>
+  </div>`).join("");
+
+/* feed */
+document.getElementById("feed-list").innerHTML = EVENTS.map(e=>`
+  <div class="ev"><time>${e.t}</time><p>${e.p}</p><div class="src">${e.s}</div></div>`).join("");
+
+function fly(lat,lng){ world.controls().autoRotate=false; world.pointOfView({lat,lng,altitude:1.5},900); }
+function selectSignal(id, fromGlobe){
+  const s = byId[id];
+  document.querySelectorAll(".wrow").forEach(r=>r.classList.remove("sel"));
+  const row = document.getElementById("row-"+id);
+  row.classList.add("sel");
+  row.scrollIntoView({behavior:"smooth", block:"nearest"});
+  if(!fromGlobe) fly(s.lat, s.lng);
+}
+
+/* decision memo (focus mode) */
+function bar(label, v){
+  return `<div class="bar-row"><label><span>${label}</span><span>${v.toFixed(2)}</span></label>
+    <div class="bar"><i style="width:${v*100}%"></i></div></div>`;
+}
+function openMemo(d){
+  document.getElementById("memo-body").innerHTML = `
+    <h3>#${d.rank} ${d.asset}</h3>
+    <div class="sub">${d.market} · ${d.hub} · score ${d.watchlist_score.toFixed(2)}</div>
+    <span class="tag" style="border-color:${DIR_COLOR[d.direction]};color:${DIR_COLOR[d.direction]}">${d.direction.toUpperCase()}</span>
+    <span class="tag">${d.signal_type.replaceAll("_"," ")}</span>
+    ${bar("Confidence", d.confidence)}
+    ${bar("Relevance", d.relevance_score)}
+    ${bar("Evidence", d.evidence_score)}
+    ${bar("Impact", d.impact_score)}
+    ${bar("Urgency", d.urgency_score)}
+    ${bar("Liquidity", d.liquidity_score)}
+    <div class="memo-block"><b>Thesis</b>${d.thesis}</div>
+    <div class="memo-block"><b>Invalidation</b>${d.invalidation}</div>
+    <div class="decision-lbl ${DEC_CLASS[d.decision]||"d-monitor"}">${d.decision}</div>
+    <div class="disclaimer">Decision support only — human approval required before any trade.</div>`;
+  document.getElementById("memo").classList.add("open");
+}
+function closeMemo(){ document.getElementById("memo").classList.remove("open"); }
+
+/* presentation / focus mode — F toggles, Esc exits */
+function setFocus(on){
+  document.body.classList.toggle("focus", on);
+  if(!on) closeMemo();
+  world.controls().autoRotate = on;
+  world.controls().autoRotateSpeed = on ? 0.55 : 0.5;
+  if(on) world.pointOfView({lat:25, lng:world.pointOfView().lng, altitude:2.3}, 800);
+}
+document.addEventListener("keydown", e=>{
+  if(e.target.tagName==="INPUT") return;
+  if(e.key==="f" || e.key==="F") setFocus(!document.body.classList.contains("focus"));
+  else if(e.key==="Escape"){
+    if(document.getElementById("memo").classList.contains("open")) closeMemo();
+    else setFocus(false);
+  }
+});
+</script>
+</body>
+</html>

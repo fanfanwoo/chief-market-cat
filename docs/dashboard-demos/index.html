@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>CMC · Globe Dashboard Prototype</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<!-- PROTOTYPE: two globe-dashboard directions, switchable via ?variant=explore|command. -->
+<style>
+  :root{
+    color-scheme:dark;
+    --bg:#050811; --panel:rgba(12,18,33,.96); --border:rgba(111,145,205,.34);
+    --text:#e3ebff; --dim:#8998b9; --accent:#65a8ff; --safe:#f5b942;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--text);
+    font:14px/1.4 "SF Pro Text",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+  main{height:100%;display:grid;grid-template-rows:42px 1fr}
+  header{display:flex;align-items:center;gap:14px;padding:0 16px;background:var(--panel);
+    border-bottom:1px solid var(--border)}
+  header b{letter-spacing:.4px}
+  header span{color:var(--dim);font-size:12px}
+  header .safety{margin-left:auto;color:var(--safe);font-weight:700;letter-spacing:.6px}
+  iframe{display:block;width:100%;height:100%;border:0;background:var(--bg)}
+  nav{position:fixed;z-index:20;left:50%;bottom:18px;transform:translateX(-50%);
+    display:flex;align-items:center;gap:8px;padding:8px;background:var(--panel);
+    border:1px solid var(--border);border-radius:999px;box-shadow:0 14px 38px rgba(0,0,0,.45)}
+  button{appearance:none;border:1px solid var(--border);border-radius:999px;background:transparent;
+    color:var(--text);padding:8px 13px;font:inherit;cursor:pointer}
+  button:hover{background:rgba(101,168,255,.12)}
+  button[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
+  button.arrow{width:36px;padding:8px 0;font-size:17px}
+  @media(max-width:700px){
+    header span:not(.safety){display:none}
+    nav{bottom:10px;width:calc(100% - 20px);justify-content:center}
+    button:not(.arrow){flex:1;padding-inline:7px}
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <b>CHIEF MARKET CAT · PROTOTYPE</b>
+    <span id="concept-summary"></span>
+    <span class="safety">NO LIVE TRADES APPROVED</span>
+  </header>
+  <iframe id="demo" title="CMC globe dashboard concept"></iframe>
+</main>
+
+<nav aria-label="Switch dashboard concept">
+  <button class="arrow" id="previous" aria-label="Previous concept">←</button>
+  <button data-variant="explore">A · Explore Globe</button>
+  <button data-variant="command">B · Command Deck</button>
+  <button class="arrow" id="next" aria-label="Next concept">→</button>
+</nav>
+
+<script>
+const VARIANTS = {
+  explore: {
+    file: "01-signal-globe.html",
+    summary: "Spatial-first · discover where risk and cross-market relationships cluster"
+  },
+  command: {
+    file: "02-global-command-deck.html",
+    summary: "Decision-first · rank signals, review risk, then use the globe for context"
+  }
+};
+const KEYS = Object.keys(VARIANTS);
+
+function selectedVariant(){
+  const requested = new URLSearchParams(location.search).get("variant");
+  return KEYS.includes(requested) ? requested : "explore";
+}
+
+function showVariant(key, updateUrl = true){
+  const variant = VARIANTS[key];
+  document.getElementById("demo").src = variant.file;
+  document.getElementById("concept-summary").textContent = variant.summary;
+  document.querySelectorAll("[data-variant]").forEach(button => {
+    button.setAttribute("aria-pressed", String(button.dataset.variant === key));
+  });
+  if(updateUrl){
+    const url = new URL(location.href);
+    url.searchParams.set("variant", key);
+    history.replaceState({}, "", url);
+  }
+}
+
+function cycle(delta){
+  const current = KEYS.indexOf(selectedVariant());
+  showVariant(KEYS[(current + delta + KEYS.length) % KEYS.length]);
+}
+
+document.querySelectorAll("[data-variant]").forEach(button => {
+  button.addEventListener("click", () => showVariant(button.dataset.variant));
+});
+document.getElementById("previous").addEventListener("click", () => cycle(-1));
+document.getElementById("next").addEventListener("click", () => cycle(1));
+document.addEventListener("keydown", event => {
+  const tag = document.activeElement?.tagName;
+  if(["INPUT", "TEXTAREA"].includes(tag) || document.activeElement?.isContentEditable) return;
+  if(event.key === "ArrowLeft") cycle(-1);
+  if(event.key === "ArrowRight") cycle(1);
+});
+window.addEventListener("popstate", () => showVariant(selectedVariant(), false));
+showVariant(selectedVariant(), false);
+</script>
+</body>
+</html>

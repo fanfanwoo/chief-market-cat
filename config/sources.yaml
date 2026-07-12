@@ -1,0 +1,96 @@
+# CMC Source Configuration
+# Defines the watchlist and data providers used by the pipeline.
+
+# ── WATCHLIST ─────────────────────────────────────────────────────────────────
+watchlist:
+  US:
+    - AAPL    # Apple
+    - MSFT    # Microsoft
+    - NVDA    # NVIDIA
+    - AMZN    # Amazon
+    - GOOGL   # Alphabet
+    - META    # Meta Platforms
+    - TSLA    # Tesla
+    - SPY     # S&P 500 ETF
+    - QQQ     # Nasdaq-100 ETF
+    - GLD     # Gold ETF
+  ASX:
+    - CBA.AX  # Commonwealth Bank
+    - BHP.AX  # BHP Group
+    - RIO.AX  # Rio Tinto
+    - WBC.AX  # Westpac
+    - ANZ.AX  # ANZ Bank
+    - NAB.AX  # National Australia Bank
+
+# Sector mapping used by risk_gate sector caps
+sector_map:
+  AAPL: technology
+  MSFT: technology
+  NVDA: technology
+  AMZN: technology
+  GOOGL: technology
+  META: technology
+  TSLA: consumer_discretionary
+  SPY: index
+  QQQ: index
+  GLD: commodities
+  CBA.AX: financials
+  BHP.AX: materials
+  RIO.AX: materials
+  WBC.AX: financials
+  ANZ.AX: financials
+  NAB.AX: financials
+
+# ── MARKET DATA ───────────────────────────────────────────────────────────────
+market_data_sources:
+  - name: yfinance
+    enabled: true
+    connector: yfinance
+    source_type: price
+    trust_tier: market_data
+    region: global
+    source_weight: 0.9
+    lookback_days: 2          # fetch last 2 days of OHLCV per symbol
+
+# ── NEWS & MACRO ──────────────────────────────────────────────────────────────
+news_macro_sources:
+  - name: newsapi
+    enabled: true
+    connector: newsapi
+    source_type: news
+    trust_tier: major_publisher
+    region: global
+    source_weight: 0.75
+    api_key_ref: newsapi_key          # resolved from config/secrets.yaml
+    max_articles: 20
+    lookback_hours: 24
+    categories: [business, finance]
+
+  - name: fred
+    enabled: true
+    connector: fred
+    source_type: macro
+    trust_tier: official
+    region: US
+    source_weight: 1.0
+    api_key_ref: fred_key             # resolved from config/secrets.yaml
+    series:
+      - id: DGS10        # US 10-Year Treasury Yield
+        label: US 10Y Treasury Yield
+      - id: FEDFUNDS     # Federal Funds Effective Rate
+        label: Fed Funds Rate
+      - id: VIXCLS       # CBOE Volatility Index
+        label: VIX
+
+# ── BROKER (DISABLED — paper mode only) ───────────────────────────────────────
+broker_sources:
+  - name: alpaca_paper
+    enabled: false
+    connector: alpaca
+    source_type: broker
+    trust_tier: primary
+    region: global
+    source_weight: 1.0
+    api_key_ref: alpaca_key           # resolved from config/secrets.yaml
+    api_secret_ref: alpaca_secret
+    paper_trading: true

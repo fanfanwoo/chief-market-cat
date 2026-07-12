@@ -1,0 +1,2 @@
+"""Chief Market Cat package."""
+

@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1200" viewBox="0 0 1800 1200">
+  <defs>
+    <style>
+      .bg { fill: #f6f8fa; }
+      .title { font: 700 42px Arial, sans-serif; fill: #13234b; }
+      .subtitle { font: 400 20px Arial, sans-serif; fill: #52616b; }
+      .section { font: 700 22px Arial, sans-serif; fill: #274c77; }
+      .box-title { font: 700 19px Arial, sans-serif; fill: #13234b; }
+      .box-text { font: 400 15px Arial, sans-serif; fill: #334155; }
+      .small { font: 400 13px Arial, sans-serif; fill: #475569; }
+      .input { fill: #e7ecef; stroke: #8b8c89; stroke-width: 2; rx: 14; }
+      .agent { fill: #6096ba; stroke: #274c77; stroke-width: 2; rx: 16; }
+      .agent-title { font: 700 18px Arial, sans-serif; fill: white; }
+      .agent-text { font: 400 14px Arial, sans-serif; fill: white; }
+      .decision { fill: #a3cef1; stroke: #274c77; stroke-width: 2; rx: 14; }
+      .review { fill: #ffd166; stroke: #9a6700; stroke-width: 2; rx: 14; }
+      .action { fill: #88a89c; stroke: #3d5a4e; stroke-width: 2; rx: 14; }
+      .danger { fill: #c97a7a; stroke: #7f1d1d; stroke-width: 2; rx: 14; }
+      .human { fill: white; stroke: #274c77; stroke-width: 3; rx: 16; }
+      .arrow { stroke: #274c77; stroke-width: 3; fill: none; marker-end: url(#arrowhead); }
+      .arrow-soft { stroke: #64748b; stroke-width: 2.5; fill: none; marker-end: url(#arrowhead-soft); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#274c77"/>
+    </marker>
+    <marker id="arrowhead-soft" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1800" height="1200"/>
+  <text class="title" x="70" y="72">Chief Market Cat - Blue-Sky Trading Agent Architecture</text>
+  <text class="subtitle" x="70" y="108">A supervised market intelligence and trading decision-support system: evidence first, risk gate before execution, human approval always.</text>
+
+  <text class="section" x="80" y="170">Global Inputs</text>
+  <rect class="input" x="70" y="195" width="300" height="95"/>
+  <text class="box-title" x="92" y="230">Market Data</text>
+  <text class="box-text" x="92" y="257">Prices, volume, volatility</text>
+  <text class="box-text" x="92" y="279">order books, sessions</text>
+
+  <rect class="input" x="70" y="315" width="300" height="95"/>
+  <text class="box-title" x="92" y="350">News + Filings</text>
+  <text class="box-text" x="92" y="377">Earnings, company releases</text>
+  <text class="box-text" x="92" y="399">regulators, headlines</text>
+
+  <rect class="input" x="70" y="435" width="300" height="95"/>
+  <text class="box-title" x="92" y="470">Macro Data</text>
+  <text class="box-text" x="92" y="497">Rates, FX, commodities</text>
+  <text class="box-text" x="92" y="519">economic calendar</text>
+
+  <rect class="input" x="70" y="555" width="300" height="95"/>
+  <text class="box-title" x="92" y="590">Portfolio + Broker</text>
+  <text class="box-text" x="92" y="617">Positions, cash, margin</text>
+  <text class="box-text" x="92" y="639">open orders, constraints</text>
+
+  <rect class="input" x="70" y="675" width="300" height="95"/>
+  <text class="box-title" x="92" y="710">Trading Journal</text>
+  <text class="box-text" x="92" y="737">Decisions, outcomes</text>
+  <text class="box-text" x="92" y="759">rules, lessons, mistakes</text>
+
+  <text class="section" x="500" y="170">8-Agent Operating Layer</text>
+
+  <rect class="agent" x="455" y="195" width="285" height="115"/>
+  <text class="agent-title" x="477" y="228">1. Market Data Agent</text>
+  <text class="agent-text" x="477" y="257">Collects and normalizes</text>
+  <text class="agent-text" x="477" y="279">live and historical data</text>
+
+  <rect class="agent" x="780" y="195" width="285" height="115"/>
+  <text class="agent-title" x="802" y="228">2. News + Macro Agent</text>
+  <text class="agent-text" x="802" y="257">Tracks events, filings</text>
+  <text class="agent-text" x="802" y="279">policy and macro shifts</text>
+
+  <rect class="agent" x="455" y="350" width="285" height="115"/>
+  <text class="agent-title" x="477" y="383">3. Signal Classifier</text>
+  <text class="agent-text" x="477" y="412">Turns raw inputs into</text>
+  <text class="agent-text" x="477" y="434">structured market signals</text>
+
+  <rect class="agent" x="780" y="350" width="285" height="115"/>
+  <text class="agent-title" x="802" y="383">4. Evidence Verifier</text>
+  <text class="agent-text" x="802" y="412">Checks trust, freshness</text>
+  <text class="agent-text" x="802" y="434">corroboration, inference</text>
+
+  <rect class="agent" x="455" y="505" width="285" height="115"/>
+  <text class="agent-title" x="477" y="538">5. Strategy Hypothesis</text>
+  <text class="agent-text" x="477" y="567">Drafts trade hypotheses</text>
+  <text class="agent-text" x="477" y="589">and invalidation logic</text>
+
+  <rect class="agent" x="780" y="505" width="285" height="115"/>
+  <text class="agent-title" x="802" y="538">6. Portfolio Manager</text>
+  <text class="agent-text" x="802" y="567">Reviews exposure, cash</text>
+  <text class="agent-text" x="802" y="589">correlation and drawdown</text>
+
+  <rect class="agent" x="455" y="660" width="285" height="115"/>
+  <text class="agent-title" x="477" y="693">7. Risk Guardian</text>
+  <text class="agent-text" x="477" y="722">Vetoes bad sizing, weak</text>
+  <text class="agent-text" x="477" y="744">evidence and leverage risk</text>
+
+  <rect class="agent" x="780" y="660" width="285" height="115"/>
+  <text class="agent-title" x="802" y="693">8. Execution + Journal</text>
+  <text class="agent-text" x="802" y="722">Reviews broker execution</text>
+  <text class="agent-text" x="802" y="744">and logs outcomes</text>
+
+  <text class="section" x="1225" y="170">Decision Layer</text>
+  <rect class="decision" x="1195" y="195" width="300" height="90"/>
+  <text class="box-title" x="1217" y="230">Market Brief</text>
+  <text class="box-text" x="1217" y="257">Daily/weekly intelligence</text>
+
+  <rect class="decision" x="1195" y="310" width="300" height="90"/>
+  <text class="box-title" x="1217" y="345">Ranked Watchlist</text>
+  <text class="box-text" x="1217" y="372">Monitor, research, paper candidate</text>
+
+  <rect class="decision" x="1195" y="425" width="300" height="100"/>
+  <text class="box-title" x="1217" y="460">Trade Decision Memo</text>
+  <text class="box-text" x="1217" y="487">Entry, invalidation, risk</text>
+  <text class="box-text" x="1217" y="509">execution notes</text>
+
+  <rect class="review" x="1195" y="550" width="300" height="105"/>
+  <text class="box-title" x="1217" y="585">Human Review Queue</text>
+  <text class="box-text" x="1217" y="612">Weak evidence, high impact</text>
+  <text class="box-text" x="1217" y="634">conflict, emotional risk</text>
+
+  <text class="section" x="1215" y="735">Controlled Actions</text>
+  <rect class="action" x="1195" y="760" width="145" height="80"/>
+  <text class="box-title" x="1224" y="793">Alerts</text>
+  <text class="small" x="1216" y="818">briefs, warnings</text>
+
+  <rect class="action" x="1355" y="760" width="145" height="80"/>
+  <text class="box-title" x="1378" y="793">Paper</text>
+  <text class="small" x="1378" y="818">simulated trades</text>
+
+  <rect class="human" x="1195" y="865" width="145" height="80"/>
+  <text class="box-title" x="1215" y="898">Human</text>
+  <text class="small" x="1211" y="923">approval gate</text>
+
+  <rect class="danger" x="1355" y="865" width="145" height="80"/>
+  <text class="box-title" x="1378" y="898">Live</text>
+  <text class="small" x="1372" y="923">permissioned only</text>
+
+  <rect class="human" x="70" y="870" width="300" height="95"/>
+  <text class="box-title" x="92" y="905">Trader / Investor</text>
+  <text class="box-text" x="92" y="932">Owns approval, risk limits</text>
+  <text class="box-text" x="92" y="954">and final accountability</text>
+
+  <path class="arrow-soft" d="M370 242 C410 242, 415 252, 455 252"/>
+  <path class="arrow-soft" d="M370 362 C560 332, 600 330, 780 252"/>
+  <path class="arrow-soft" d="M370 482 C410 482, 415 407, 455 407"/>
+  <path class="arrow-soft" d="M370 602 C600 602, 610 562, 780 562"/>
+  <path class="arrow-soft" d="M370 722 C600 820, 710 735, 780 718"/>
+
+  <path class="arrow" d="M740 252 L780 252"/>
+  <path class="arrow" d="M922 310 L922 350"/>
+  <path class="arrow" d="M780 407 L740 407"/>
+  <path class="arrow" d="M598 465 L598 505"/>
+  <path class="arrow" d="M740 562 L780 562"/>
+  <path class="arrow" d="M922 620 L922 660"/>
+  <path class="arrow" d="M780 718 L740 718"/>
+
+  <path class="arrow-soft" d="M1065 407 C1115 370, 1140 250, 1195 240"/>
+  <path class="arrow-soft" d="M740 562 C930 535, 1030 365, 1195 355"/>
+  <path class="arrow-soft" d="M740 718 C930 700, 1050 485, 1195 475"/>
+  <path class="arrow-soft" d="M1065 407 C1135 430, 1125 595, 1195 603"/>
+
+  <path class="arrow-soft" d="M1495 240 C1585 285, 1570 748, 1500 800"/>
+  <path class="arrow-soft" d="M1495 475 C1585 520, 1575 848, 1500 905"/>
+  <path class="arrow-soft" d="M1340 905 L1355 905"/>
+  <path class="arrow-soft" d="M370 918 C650 1030, 1040 995, 1195 905"/>
+  <path class="arrow-soft" d="M1428 945 C1275 1060, 970 845, 922 775"/>
+
+  <rect x="70" y="1030" width="1430" height="90" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" rx="16"/>
+  <text class="box-title" x="95" y="1064">Operating promise</text>
+  <text class="box-text" x="95" y="1094">The system may observe, classify, verify, score and brief. It may not place live trades unless Risk Guardian, broker review and human approval all pass.</text>
+</svg>

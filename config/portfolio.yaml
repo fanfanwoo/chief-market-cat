@@ -1,0 +1,14 @@
+portfolio:
+  mode: manual
+  base_currency: AUD
+  starting_cash: null
+  positions: []
+
+watchlists:
+  global_indices: []
+  equities: []
+  etfs: []
+  fx: []
+  crypto: []
+  commodities: []
+

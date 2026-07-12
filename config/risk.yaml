@@ -1,0 +1,50 @@
+# CMC Risk Configuration
+# Conservative defaults. Tune only after paper-trading data exists.
+
+account:
+  base_currency: AUD
+
+trade_limits:
+  max_risk_per_trade_pct: 0.25
+  max_daily_loss_pct: 1.0
+  max_weekly_loss_pct: 2.0
+  max_open_positions: 5
+
+portfolio_limits:
+  max_single_asset_exposure_pct: 10.0
+  max_single_sector_exposure_pct: 25.0
+  max_correlated_trade_count: 2
+
+execution_limits:
+  require_human_approval: true
+  allow_live_trading: false
+  allow_margin: false
+  allow_options: false
+  allow_shorts: false
+
+risk_gate:
+  require_invalidation: true
+  require_position_size_logic: true
+  require_liquidity_check: true
+  block_headline_only_high_impact: true
+
+# Symbols that will be hard-blocked regardless of signal quality.
+# Add tickers here if they're under regulatory review, halted, or otherwise
+# unsuitable for paper trading at this time.
+blocked_symbols: []
+# Example:
+# blocked_symbols:
+#   - AMTD
+
+# Per-run sector and total signal caps.
+# Prevents over-concentration in a single theme on any given day.
+sector_caps:
+  max_per_sector: 3    # max 3 signals from the same sector per daily run
+  max_total: 10        # max 10 signals total approved per daily run
+
+# Paper trading position sizing rules (used by paper_trade.py)
+position_sizing:
+  default_risk_per_trade_pct: 0.5    # risk 0.5% of notional account per trade
+  notional_account_aud: 10000        # paper account size for sizing calculations
+  stop_loss_pct: 2.0                 # stop loss at 2% from entry
+  take_profit_pct: 4.0               # take profit at 4% from entry (2:1 R/R)

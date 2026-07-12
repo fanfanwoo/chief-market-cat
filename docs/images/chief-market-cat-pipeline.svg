@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="760" viewBox="0 0 2000 760">
+  <defs>
+    <style>
+      .bg { fill: #f6f8fa; }
+      .title { font: 700 42px Arial, sans-serif; fill: #13234b; }
+      .subtitle { font: 400 20px Arial, sans-serif; fill: #52616b; }
+      .stage { fill: #e7ecef; stroke: #274c77; stroke-width: 2; rx: 14; }
+      .llm { fill: #6096ba; stroke: #274c77; stroke-width: 2; rx: 14; }
+      .gate { fill: #a3cef1; stroke: #274c77; stroke-width: 2; rx: 14; }
+      .risk { fill: #c97a7a; stroke: #7f1d1d; stroke-width: 2; rx: 14; }
+      .output { fill: #88a89c; stroke: #3d5a4e; stroke-width: 2; rx: 14; }
+      .review { fill: #ffd166; stroke: #9a6700; stroke-width: 2; rx: 14; }
+      .store { fill: white; stroke: #8b8c89; stroke-width: 2; rx: 14; }
+      .box-title { font: 700 18px Arial, sans-serif; fill: #13234b; }
+      .box-title-white { font: 700 18px Arial, sans-serif; fill: white; }
+      .box-text { font: 400 14px Arial, sans-serif; fill: #334155; }
+      .box-text-white { font: 400 14px Arial, sans-serif; fill: white; }
+      .arrow { stroke: #274c77; stroke-width: 3; fill: none; marker-end: url(#arrowhead); }
+      .hold { stroke: #9a6700; stroke-width: 3; fill: none; marker-end: url(#arrowhead-gold); stroke-dasharray: 8 6; }
+      .label { font: 700 14px Arial, sans-serif; fill: #274c77; }
+      .gold-label { font: 700 14px Arial, sans-serif; fill: #7a4f00; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#274c77"/>
+    </marker>
+    <marker id="arrowhead-gold" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#9a6700"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="2000" height="760"/>
+  <text class="title" x="70" y="72">Chief Market Cat Pipeline</text>
+  <text class="subtitle" x="70" y="108">A CSC-style deterministic pipeline for market intelligence, with LLM classification and hard gates before any trade candidate.</text>
+
+  <rect class="stage" x="60" y="210" width="150" height="85"/>
+  <text class="box-title" x="85" y="244">scheduler</text>
+  <text class="box-text" x="85" y="270">cadence trigger</text>
+
+  <rect class="stage" x="265" y="165" width="180" height="85"/>
+  <text class="box-title" x="292" y="199">fetch_market</text>
+  <text class="box-text" x="292" y="225">price, volume, vol</text>
+
+  <rect class="stage" x="265" y="275" width="180" height="85"/>
+  <text class="box-title" x="292" y="309">fetch_news</text>
+  <text class="box-text" x="292" y="335">news, macro, filings</text>
+
+  <rect class="stage" x="500" y="220" width="170" height="85"/>
+  <text class="box-title" x="532" y="254">normalize</text>
+  <text class="box-text" x="532" y="280">symbols, time zones</text>
+
+  <rect class="stage" x="725" y="220" width="190" height="85"/>
+  <text class="box-title" x="755" y="254">deduplicate</text>
+  <text class="box-text" x="755" y="280">same event, sources</text>
+
+  <rect class="gate" x="970" y="220" width="190" height="85"/>
+  <text class="box-title" x="1000" y="254">evidence_state</text>
+  <text class="box-text" x="1000" y="280">trust, freshness</text>
+
+  <rect class="llm" x="1215" y="220" width="190" height="85"/>
+  <text class="box-title-white" x="1244" y="254">classify_signal</text>
+  <text class="box-text-white" x="1244" y="280">LLM JSON output</text>
+
+  <rect class="gate" x="1460" y="220" width="180" height="85"/>
+  <text class="box-title" x="1493" y="254">verify_signal</text>
+  <text class="box-text" x="1493" y="280">hold or pass</text>
+
+  <rect class="risk" x="1695" y="220" width="180" height="85"/>
+  <text class="box-title-white" x="1735" y="254">risk_gate</text>
+  <text class="box-text-white" x="1722" y="280">veto bad trades</text>
+
+  <rect class="stage" x="1695" y="385" width="180" height="85"/>
+  <text class="box-title" x="1722" y="419">score_watchlist</text>
+  <text class="box-text" x="1722" y="445">rank opportunities</text>
+
+  <rect class="llm" x="1460" y="520" width="190" height="85"/>
+  <text class="box-title-white" x="1488" y="554">summarize_brief</text>
+  <text class="box-text-white" x="1490" y="580">LLM market brief</text>
+
+  <rect class="output" x="1215" y="520" width="190" height="85"/>
+  <text class="box-title-white" x="1254" y="554">alert_human</text>
+  <text class="box-text-white" x="1248" y="580">briefs, warnings</text>
+
+  <rect class="output" x="1695" y="520" width="180" height="85"/>
+  <text class="box-title-white" x="1717" y="554">paper_candidate</text>
+  <text class="box-text-white" x="1724" y="580">approval needed</text>
+
+  <rect class="review" x="1215" y="385" width="190" height="85"/>
+  <text class="box-title" x="1243" y="419">review_queue</text>
+  <text class="box-text" x="1245" y="445">weak/high-risk</text>
+
+  <rect class="store" x="970" y="520" width="190" height="85"/>
+  <text class="box-title" x="1002" y="554">journal_store</text>
+  <text class="box-text" x="1002" y="580">audit and learning</text>
+
+  <path class="arrow" d="M210 252 C238 252, 238 207, 265 207"/>
+  <path class="arrow" d="M210 252 C238 252, 238 317, 265 317"/>
+  <path class="arrow" d="M445 207 C475 207, 470 250, 500 250"/>
+  <path class="arrow" d="M445 317 C475 317, 470 275, 500 275"/>
+  <path class="arrow" d="M670 262 L725 262"/>
+  <path class="arrow" d="M915 262 L970 262"/>
+  <path class="arrow" d="M1160 262 L1215 262"/>
+  <path class="arrow" d="M1405 262 L1460 262"/>
+  <path class="arrow" d="M1640 262 L1695 262"/>
+  <path class="arrow" d="M1785 305 L1785 385"/>
+  <path class="arrow" d="M1695 427 C1660 427, 1665 562, 1650 562"/>
+  <path class="arrow" d="M1460 562 L1405 562"/>
+  <path class="arrow" d="M1215 562 L1160 562"/>
+  <path class="arrow" d="M1785 470 L1785 520"/>
+
+  <path class="hold" d="M1550 305 C1550 370, 1475 420, 1405 427"/>
+  <text class="gold-label" x="1425" y="370">hold</text>
+
+  <path class="hold" d="M1695 262 C1635 330, 1500 405, 1405 427"/>
+  <text class="gold-label" x="1588" y="360">block</text>
+
+  <path class="arrow" d="M1215 427 L1405 427"/>
+  <text class="label" x="1505" y="345">pass</text>
+
+  <rect x="70" y="650" width="1805" height="70" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" rx="16"/>
+  <text class="box-title" x="95" y="681">Pipeline rule</text>
+  <text class="box-text" x="235" y="681">Only scored, risk-passed signals can become paper-trade candidates. Live trades are outside MVP/Day 2 and require explicit human approval plus broker execution review.</text>
+</svg>

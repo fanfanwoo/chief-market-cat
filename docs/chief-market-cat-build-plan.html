@@ -1,0 +1,2142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chief Market Cat — Build Plan</title>
+<style>
+  :root {
+    --navy: #13234b;
+    --blue: #274c77;
+    --mid-blue: #6096ba;
+    --light-blue: #a3cef1;
+    --pale-blue: #e7ecef;
+    --green: #3d5a4e;
+    --light-green: #88a89c;
+    --amber: #9a6700;
+    --light-amber: #ffd166;
+    --pale-amber: #fff8e1;
+    --red: #7f1d1d;
+    --light-red: #c97a7a;
+    --pale-red: #fef2f2;
+    --grey: #8b8c89;
+    --light-grey: #f4f5f3;
+    --text: #1a1a2e;
+    --subtext: #4a4a6a;
+    --border: #dde2e8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text);
+    background: #f8f9fb;
+  }
+
+  /* ─── HEADER ─── */
+  .page-header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+    color: white;
+    padding: 48px 48px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .page-header::after {
+    content: "";
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+  .page-header::before {
+    content: "";
+    position: absolute;
+    bottom: -80px; left: 60%;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.03);
+  }
+  .header-tag {
+    display: inline-block;
+    background: rgba(163,206,241,0.25);
+    color: var(--light-blue);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(163,206,241,0.3);
+  }
+  .page-header h1 {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 1;
+  }
+  .page-header h1 span { color: var(--light-blue); }
+  .page-header p {
+    font-size: 15px;
+    color: rgba(255,255,255,0.72);
+    max-width: 600px;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 28px;
+  }
+  .header-meta {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+  }
+  .header-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .header-meta-item .label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+  }
+  .header-meta-item .value {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.92);
+  }
+
+  /* ─── NAV ─── */
+  .doc-nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 0 48px;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .doc-nav a {
+    display: inline-block;
+    padding: 14px 18px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--subtext);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .doc-nav a:hover {
+    color: var(--blue);
+    border-bottom-color: var(--light-blue);
+  }
+
+  /* ─── LAYOUT ─── */
+  .page-body {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 48px 48px 80px;
+  }
+
+  /* ─── SECTIONS ─── */
+  .section {
+    margin-bottom: 56px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--border);
+  }
+  .section-number {
+    width: 30px;
+    height: 30px;
+    background: var(--navy);
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .section-header h2 {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--navy);
+    letter-spacing: -0.3px;
+  }
+  .section-header .section-tag {
+    margin-left: auto;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 12px;
+  }
+  .tag-status { background: var(--pale-blue); color: var(--blue); }
+  .tag-gaps { background: var(--pale-amber); color: var(--amber); }
+  .tag-stack { background: #e8f5e9; color: #2e7d32; }
+  .tag-road { background: var(--pale-blue); color: var(--blue); }
+  .tag-sprint { background: #f3e8ff; color: #6b21a8; }
+
+  /* ─── EXECUTIVE SUMMARY ─── */
+  .exec-summary {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 28px;
+  }
+  .exec-summary p {
+    color: var(--subtext);
+    margin-bottom: 14px;
+    font-size: 14.5px;
+  }
+  .exec-summary p:last-child { margin-bottom: 0; }
+  .exec-summary strong { color: var(--text); }
+  .exec-highlight {
+    background: var(--pale-blue);
+    border-left: 4px solid var(--mid-blue);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-size: 14px;
+    color: var(--blue);
+    font-weight: 500;
+  }
+
+  /* ─── STATUS GRID ─── */
+  .status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+  .status-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .status-card-header {
+    padding: 14px 20px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .status-card-header .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+  .header-built { background: #e8f5e9; color: #2e7d32; }
+  .header-built .dot { background: #4caf50; }
+  .header-missing { background: var(--pale-amber); color: var(--amber); }
+  .header-missing .dot { background: var(--light-amber); }
+  .status-card-body { padding: 16px 20px; }
+  .status-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid #f0f2f5;
+    font-size: 13px;
+  }
+  .status-item:last-child { border-bottom: none; }
+  .status-item .icon { font-size: 14px; flex-shrink: 0; line-height: 1.5; }
+  .status-item .detail { color: var(--subtext); font-size: 11.5px; margin-top: 1px; }
+
+  /* ─── PIPELINE STRIP ─── */
+  .pipeline-strip {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 28px;
+    overflow-x: auto;
+  }
+  .pipeline-strip h3 {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--grey);
+    margin-bottom: 16px;
+  }
+  .pipeline-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: nowrap;
+    min-width: 900px;
+  }
+  .pipeline-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+  }
+  .pipeline-node .node-box {
+    padding: 7px 10px;
+    border-radius: 7px;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-align: center;
+    border: 1.5px solid;
+    width: 100%;
+    white-space: nowrap;
+  }
+  .pipeline-node .node-status {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .pipe-arrow {
+    width: 18px;
+    height: 2px;
+    background: var(--border);
+    flex-shrink: 0;
+    position: relative;
+  }
+  .pipe-arrow::after {
+    content: "›";
+    position: absolute;
+    right: -5px;
+    top: -9px;
+    color: var(--grey);
+    font-size: 14px;
+  }
+  .node-done { background: #e8f5e9; border-color: #4caf50; color: #2e7d32; }
+  .node-stub { background: var(--pale-amber); border-color: var(--light-amber); color: #7a4f00; }
+  .node-empty { background: var(--pale-red); border-color: #f87171; color: var(--red); }
+  .status-done { color: #4caf50; }
+  .status-stub { color: var(--amber); }
+  .status-empty { color: var(--light-red); }
+
+  /* ─── GAP CARDS ─── */
+  .gaps-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .gap-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+  }
+  .gap-card.critical { border-left: 4px solid var(--light-red); }
+  .gap-card.high { border-left: 4px solid var(--light-amber); }
+  .gap-card.medium { border-left: 4px solid var(--mid-blue); }
+  .gap-accent {
+    width: 4px;
+    flex-shrink: 0;
+  }
+  .gap-content {
+    padding: 20px 24px;
+    flex: 1;
+  }
+  .gap-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .gap-number {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .gap-number.critical { background: var(--pale-red); color: var(--red); }
+  .gap-number.high { background: var(--pale-amber); color: var(--amber); }
+  .gap-number.medium { background: var(--pale-blue); color: var(--blue); }
+  .gap-header h3 {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--navy);
+  }
+  .gap-severity {
+    margin-left: auto;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 8px;
+  }
+  .sev-critical { background: var(--pale-red); color: var(--red); }
+  .sev-high { background: var(--pale-amber); color: var(--amber); }
+  .sev-medium { background: var(--pale-blue); color: var(--blue); }
+  .gap-desc {
+    font-size: 13.5px;
+    color: var(--subtext);
+    margin-bottom: 10px;
+    line-height: 1.6;
+  }
+  .gap-code {
+    background: var(--light-grey);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, monospace;
+    font-size: 11.5px;
+    color: var(--red);
+    margin-bottom: 10px;
+  }
+  .gap-fix {
+    background: #e8f5e9;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 12.5px;
+    color: #2e7d32;
+    font-weight: 500;
+  }
+  .gap-fix strong { font-weight: 700; }
+
+  /* ─── STACK TABLE ─── */
+  .stack-table-wrap {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .stack-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .stack-table thead th {
+    background: var(--navy);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    text-align: left;
+  }
+  .stack-table tbody tr:nth-child(even) { background: var(--light-grey); }
+  .stack-table tbody tr:hover { background: var(--pale-blue); }
+  .stack-table tbody td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .stack-table tbody tr:last-child td { border-bottom: none; }
+  .stack-table .role-col { font-weight: 700; color: var(--navy); white-space: nowrap; }
+  .stack-table .tool-col { font-weight: 600; color: var(--blue); }
+  .stack-table .free-pill {
+    display: inline-block;
+    background: #e8f5e9;
+    color: #2e7d32;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 10px;
+    margin-left: 4px;
+  }
+  .stack-table .cost-col { font-weight: 700; color: var(--green); white-space: nowrap; }
+  .stack-table .pip-col {
+    font-family: "SF Mono", "Fira Code", Menlo, monospace;
+    font-size: 11px;
+    color: var(--subtext);
+  }
+
+  .cost-summary {
+    background: var(--navy);
+    color: white;
+    border-radius: 10px;
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .cost-summary .cost-label {
+    font-size: 13px;
+    color: rgba(255,255,255,0.65);
+    font-weight: 500;
+  }
+  .cost-summary .cost-range {
+    font-size: 28px;
+    font-weight: 800;
+    color: white;
+    letter-spacing: -1px;
+  }
+  .cost-summary .cost-note {
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    margin-top: 2px;
+  }
+  .cost-summary .cost-items {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .cost-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .cost-item .ci-val {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--light-blue);
+  }
+  .cost-item .ci-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ─── PHASE ROADMAP ─── */
+  .phases-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .phase-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 24px;
+    cursor: default;
+  }
+  .phase-badge {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    flex-shrink: 0;
+  }
+  .phase-current { background: var(--navy); color: white; }
+  .phase-next { background: var(--pale-blue); color: var(--blue); }
+  .phase-future { background: var(--light-grey); color: var(--grey); }
+  .phase-header h3 {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--navy);
+  }
+  .phase-header .phase-eta {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--grey);
+    font-weight: 600;
+    background: var(--light-grey);
+    padding: 3px 10px;
+    border-radius: 10px;
+  }
+  .phase-body {
+    padding: 0 24px 20px;
+    border-top: 1px solid var(--border);
+  }
+  .phase-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    padding-top: 16px;
+  }
+  .phase-col h4 {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--grey);
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .phase-col ul {
+    list-style: none;
+    padding: 0;
+  }
+  .phase-col ul li {
+    font-size: 12.5px;
+    padding: 4px 0;
+    color: var(--subtext);
+    padding-left: 14px;
+    position: relative;
+  }
+  .phase-col ul li::before {
+    content: "·";
+    position: absolute;
+    left: 2px;
+    color: var(--mid-blue);
+    font-weight: 900;
+  }
+  .phase-pin {
+    background: var(--pale-blue);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 14px;
+    font-size: 12.5px;
+    color: var(--blue);
+    font-style: italic;
+    border-left: 3px solid var(--mid-blue);
+  }
+  .phase-locked {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--light-grey);
+    font-size: 12px;
+    color: var(--grey);
+    font-style: italic;
+    margin-top: 4px;
+    border-radius: 0 0 12px 12px;
+  }
+
+  /* ─── SPRINT PLAN ─── */
+  .sprint-header {
+    background: linear-gradient(135deg, #6b21a8 0%, #7c3aed 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+  }
+  .sprint-header h3 { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+  .sprint-header p { font-size: 13px; color: rgba(255,255,255,0.7); }
+  .sprint-goal {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  .sprint-goal .goal-pill {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+  }
+  .days-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .day-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .day-header {
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .day-number {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--navy);
+    color: white;
+    font-size: 12px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .day-1 .day-header { background: #fdf4ff; }
+  .day-2 .day-header { background: #eff6ff; }
+  .day-3 .day-header { background: #f0fdf4; }
+  .day-4 .day-header { background: #fff8e1; }
+  .day-5 .day-header { background: var(--light-grey); }
+  .day-body { padding: 16px 20px; }
+  .day-task {
+    display: flex;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid #f0f2f5;
+    font-size: 12.5px;
+  }
+  .day-task:last-child { border-bottom: none; }
+  .task-check {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .task-label { color: var(--text); line-height: 1.5; }
+  .task-sub { font-size: 11px; color: var(--grey); margin-top: 1px; }
+  .day-deliverable {
+    background: var(--light-grey);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--subtext);
+  }
+  .day-deliverable strong { color: var(--text); }
+  .day-5-full {
+    grid-column: 1 / -1;
+  }
+
+  /* ─── SAFETY BOX ─── */
+  .safety-box {
+    background: var(--pale-red);
+    border: 1px solid #fca5a5;
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 28px;
+  }
+  .safety-box h3 {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--red);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .safety-box ul {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .safety-box ul li {
+    font-size: 13px;
+    color: var(--red);
+    padding-left: 18px;
+    position: relative;
+  }
+  .safety-box ul li::before {
+    content: "🔒";
+    position: absolute;
+    left: 0;
+    font-size: 11px;
+  }
+
+  /* ─── FOOTER ─── */
+  .doc-footer {
+    text-align: center;
+    padding: 40px 48px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--grey);
+    background: white;
+  }
+  .doc-footer strong { color: var(--subtext); }
+
+  /* ─── UTIL ─── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .info-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .info-card h4 {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--grey);
+    margin-bottom: 12px;
+  }
+  .info-card p {
+    font-size: 13px;
+    color: var(--subtext);
+    line-height: 1.6;
+  }
+  .kv-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 5px 0;
+    border-bottom: 1px solid #f0f2f5;
+    font-size: 13px;
+  }
+  .kv-row:last-child { border-bottom: none; }
+  .kv-row .kv-key { color: var(--subtext); }
+  .kv-row .kv-val { font-weight: 700; color: var(--navy); }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="page-header">
+  <div class="header-tag">Internal Strategy Document</div>
+  <h1>Chief Market <span>Cat</span> — Build Plan</h1>
+  <p>A supervised market intelligence and trading decision-support system. This document captures current project state, critical gaps, recommended tech stack, phased roadmap, and the concrete Week 1 sprint plan.</p>
+  <div class="header-meta">
+    <div class="header-meta-item">
+      <span class="label">Current Stage</span>
+      <span class="value">Phase 0 — Scaffold Complete</span>
+    </div>
+    <div class="header-meta-item">
+      <span class="label">Next Milestone</span>
+      <span class="value">MVP 1 — Market Intelligence Brief</span>
+    </div>
+    <div class="header-meta-item">
+      <span class="label">Base Currency</span>
+      <span class="value">AUD</span>
+    </div>
+    <div class="header-meta-item">
+      <span class="label">Last Updated</span>
+      <span class="value">July 2026</span>
+    </div>
+    <div class="header-meta-item">
+      <span class="label">Live Trading</span>
+      <span class="value">❌ Not Yet</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── NAV ── -->
+<nav class="doc-nav">
+  <a href="#executive-summary">Executive Summary</a>
+  <a href="#status">What's Built</a>
+  <a href="#gaps">9 Critical Gaps</a>
+  <a href="#stack">Tech Stack</a>
+  <a href="#roadmap">Phased Roadmap</a>
+  <a href="#sprint">Week 1 Sprint</a>
+  <a href="#safety">Safety Boundary</a>
+</nav>
+
+<div class="page-body">
+
+  <!-- ── SECTION 1: EXECUTIVE SUMMARY ── -->
+  <div class="section" id="executive-summary">
+    <div class="section-header">
+      <div class="section-number">1</div>
+      <h2>Executive Summary</h2>
+      <span class="section-tag tag-status">Where We Stand</span>
+    </div>
+
+    <div class="exec-summary">
+      <p>Chief Market Cat (CMC) is a <strong>supervised global market intelligence and trading decision-support system</strong>. Its job is to monitor market, news, macro, portfolio, and broker-state signals, then convert them into structured watchlist items, trade decision memos, and human review queues. It is not an autonomous trading bot — and will not be until a strict set of safety gates are in place.</p>
+
+      <div class="exec-highlight">
+        <strong>The scaffold is done. The plumbing is not.</strong> Every module exists, the schemas are clean, and the config architecture is well-designed — but the pipeline currently produces no output. Both fetcher functions return empty lists, the classifier returns a placeholder, alerts are not sent, and the journal is not persisted. The project is structurally sound but operationally inert.
+      </div>
+
+      <p>The target pipeline is <strong>13 stages long</strong>, running from a scheduler through fetch → normalize → deduplicate → evidence_state → classify → verify → risk_gate → score → summarize → alert → journal. Of these, <strong>6 stages are genuinely functional</strong> (normalize, deduplicate, evidence_state, verify_signal, risk_gate, score_watchlist), <strong>3 are working stubs</strong> (summarize_brief, jsonl_store, alert_human), and <strong>4 are empty or hollow</strong> (fetch_market_data, fetch_news_macro, classify_signal, run.py itself).</p>
+
+      <p>The most important finding: <strong>run.py does not call any pipeline stages</strong>. It just returns <code style="background:#f0f2f5;padding:1px 5px;border-radius:3px;font-size:12px;font-family:monospace;">scaffold_ready</code>. Before anything else matters, the pipeline stages need to be wired together in the entrypoint.</p>
+
+      <p>Beyond the plumbing gaps, there are <strong>9 strategic gaps</strong> that need decisions before the system becomes useful: from picking a watchlist of tickers to deciding how human override patterns get captured, to managing data staleness across a 24/7 global market universe.</p>
+    </div>
+
+    <div class="two-col">
+      <div class="info-card">
+        <h4>Design Philosophy</h4>
+        <p>Deterministic modules first. LLM judgment only where useful. Evidence state before classification. Verify gate before scoring. Risk gate before any trade candidate. Human review for weak-evidence or high-impact signals. No autonomous live execution.</p>
+      </div>
+      <div class="info-card">
+        <h4>Project Config Reality</h4>
+        <div class="kv-row"><span class="kv-key">LLM model</span><span class="kv-val" style="color:var(--light-red)">placeholder</span></div>
+        <div class="kv-row"><span class="kv-key">All data sources</span><span class="kv-val" style="color:var(--amber)">connector: manual</span></div>
+        <div class="kv-row"><span class="kv-key">Watchlist tickers</span><span class="kv-val" style="color:var(--light-red)">0 defined</span></div>
+        <div class="kv-row"><span class="kv-key">Dependencies</span><span class="kv-val" style="color:var(--amber)">pyyaml only</span></div>
+        <div class="kv-row"><span class="kv-key">Run mode</span><span class="kv-val" style="color:var(--amber)">manual</span></div>
+        <div class="kv-row"><span class="kv-key">Live trading allowed</span><span class="kv-val" style="color:#2e7d32">false ✓</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 2: STATUS ── -->
+  <div class="section" id="status">
+    <div class="section-header">
+      <div class="section-number">2</div>
+      <h2>What's Built vs What's Missing</h2>
+      <span class="section-tag tag-status">Project Status</span>
+    </div>
+
+    <!-- Pipeline status strip -->
+    <div class="pipeline-strip">
+      <h3>Pipeline Stage Status</h3>
+      <div class="pipeline-flow">
+        <div class="pipeline-node">
+          <div class="node-box node-empty">run.py</div>
+          <div class="node-status status-empty">hollow</div>
+        </div>
+        <div class="pipe-arrow"></div>
+        <div class="pipeline-node">
+          <div class="node-box node-empty">fetch_market</div>
+          <div class="node-status status-empty">returns []</div>
+        </div>
+        <div class="pipe-arrow"></div>
+        <div class="pipeline-node">
+          <div class="node-box node-empty">fetch_news</div>
+          <div class="node-status status-empty">returns []</div>
+        </div>
+        <div class="pipe-arrow"></div>
+        <div class="pipeline-node">
+          <div class="node-box node-done">normalize</div>
+          <div class="node-status status-done">functional</div>
+        </div>
+        <div class="pipe-arrow"></div>
+        <div class="pipeline-node">
+          <div class="node-box node-done">deduplicate</div>
+          <div class="node-status status-done">functional</div>
+        </div>
+        <div class="pipe-arrow"></div>
+        <div class="pipeline-node">
+          <div class="node-box node-done">evidence</div>
+          <div class="node-status status-done">functional</div>
+        </div>
+        <div class="pipe-arrow"></div>
+        <div class="pipeline-node">
+          <div class="node-box node-stub">classify</div>
+          <div class="node-status status-stub">placeholder</div>
+        </div>
+        <div class="pipe-arrow"></div>
+        <div class="pipeline-node">
+          <div class="node-box node-done">verify</div>
+          <div class="node-status status-done">functional</div>
+        </div>
+        <div class="pipe-arrow"></div>
+        <div class="pipeline-node">
+          <div class="node-box node-done">risk_gate</div>
+          <div class="node-status status-done">functional</div>
+        </div>
+        <div class="pipe-arrow"></div>
+        <div class="pipeline-node">
+          <div class="node-box node-done">score</div>
+          <div class="node-status status-done">functional</div>
+        </div>
+        <div class="pipe-arrow"></div>
+        <div class="pipeline-node">
+          <div class="node-box node-stub">brief</div>
+          <div class="node-status status-stub">template</div>
+        </div>
+        <div class="pipe-arrow"></div>
+        <div class="pipeline-node">
+          <div class="node-box node-stub">alert</div>
+          <div class="node-status status-stub">not sent</div>
+        </div>
+        <div class="pipe-arrow"></div>
+        <div class="pipeline-node">
+          <div class="node-box node-stub">journal</div>
+          <div class="node-status status-stub">not stored</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:20px;margin-top:16px;font-size:11.5px;">
+        <span><span style="display:inline-block;width:10px;height:10px;background:#4caf50;border-radius:2px;margin-right:5px;"></span>Functional — logic complete</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:var(--light-amber);border-radius:2px;margin-right:5px;"></span>Stub — exists but no real output</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:var(--light-red);border-radius:2px;margin-right:5px;"></span>Hollow — returns empty / not wired</span>
+      </div>
+    </div>
+
+    <div class="status-grid">
+      <!-- BUILT -->
+      <div class="status-card">
+        <div class="status-card-header header-built">
+          <div class="dot"></div>
+          What's Built &amp; Working
+        </div>
+        <div class="status-card-body">
+          <div class="status-item">
+            <span class="icon">✅</span>
+            <div>
+              <div><strong>Full directory structure</strong></div>
+              <div class="detail">cmc/, config/, docs/, data/, tests/ — all created per architecture spec</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="icon">✅</span>
+            <div>
+              <div><strong>Schema modules</strong></div>
+              <div class="detail">RawMarketItem, NormalizedMarketItem, SignalItem, ScoredSignal — all typed dataclasses</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="icon">✅</span>
+            <div>
+              <div><strong>Config YAML files</strong></div>
+              <div class="detail">pipeline.yaml, sources.yaml, risk.yaml, portfolio.yaml — all structured and loadable</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="icon">✅</span>
+            <div>
+              <div><strong>normalize.py</strong></div>
+              <div class="detail">Uppercases assets, sets default timeframe — ready to process real items</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="icon">✅</span>
+            <div>
+              <div><strong>deduplicate_events.py</strong></div>
+              <div class="detail">Asset:title fuzzy key dedup, tracks provenance (duplicate_source_names)</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="icon">✅</span>
+            <div>
+              <div><strong>evidence_state.py</strong></div>
+              <div class="detail">Labels trust_tier → evidence_category/level. full_body / excerpt / headline_only routing</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="icon">✅</span>
+            <div>
+              <div><strong>verify_signal.py</strong></div>
+              <div class="detail">Confidence floor, headline_only_high_impact, missing_invalidation hold logic</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="icon">✅</span>
+            <div>
+              <div><strong>risk_gate.py</strong></div>
+              <div class="detail">require_invalidation check, pass/block routing to review queue</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="icon">✅</span>
+            <div>
+              <div><strong>score_watchlist.py</strong></div>
+              <div class="detail">6-factor weighted scoring: relevance(0.25), evidence(0.25), impact(0.2), urgency(0.15), liquidity(0.1), confidence(0.05)</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="icon">✅</span>
+            <div>
+              <div><strong>jsonl_store.py</strong></div>
+              <div class="detail">append_jsonl() functional — dataclass-aware serialization</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="icon">✅</span>
+            <div>
+              <div><strong>Prompt files</strong></div>
+              <div class="detail">signal_classifier_prompt.txt, market_brief_prompt.txt — placeholders ready</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="icon">✅</span>
+            <div>
+              <div><strong>Test scaffold</strong></div>
+              <div class="detail">test_config_loads() and test_run_pipeline_scaffold() pass</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MISSING -->
+      <div class="status-card">
+        <div class="status-card-header header-missing">
+          <div class="dot"></div>
+          What's Missing or Hollow
+        </div>
+        <div class="status-card-body">
+          <div class="status-item">
+            <span class="icon">🔴</span>
+            <div>
+              <div><strong>run.py is not wired</strong></div>
+              <div class="detail">Returns scaffold_ready but calls zero pipeline stages. Nothing runs end-to-end.</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="icon">🔴</span>
+            <div>
+              <div><strong>fetch_market_data.py returns []</strong></div>
+              <div class="detail">Single-line stub. No yfinance, Alpha Vantage, or any data library connected.</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="icon">🔴</span>
+            <div>
+              <div><strong>fetch_news_macro.py returns []</strong></div>
+              <div class="detail">Single-line stub. No NewsAPI, RSS, FRED, or any news source connected.</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="icon">🔴</span>
+            <div>
+              <div><strong>classify_signal.py is a placeholder</strong></div>
+              <div class="detail">Returns "Phase 0 placeholder classification" for every item. No LLM provider wired.</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="icon">🟡</span>
+            <div>
+              <div><strong>alert_human.py returns not_sent</strong></div>
+              <div class="detail">No delivery channel — Telegram, email, or Slack not connected.</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="icon">🟡</span>
+            <div>
+              <div><strong>journal_store.py returns not_persisted</strong></div>
+              <div class="detail">Doesn't call jsonl_store.append_jsonl(). JSONL store exists but isn't used.</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="icon">🟡</span>
+            <div>
+              <div><strong>summarize_brief.py has no LLM call</strong></div>
+              <div class="detail">Produces markdown template output only. LLM brief generation not wired.</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="icon">🔴</span>
+            <div>
+              <div><strong>Watchlist is empty</strong></div>
+              <div class="detail">portfolio.yaml: all lists are []. No tickers defined across any asset class.</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="icon">🔴</span>
+            <div>
+              <div><strong>No data libraries installed</strong></div>
+              <div class="detail">pyproject.toml: only pyyaml. No pandas, yfinance, anthropic, httpx, APScheduler, etc.</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="icon">🟡</span>
+            <div>
+              <div><strong>No scheduler wired</strong></div>
+              <div class="detail">pipeline.yaml mode: manual. No cron, APScheduler, or run loop configured.</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="icon">🟡</span>
+            <div>
+              <div><strong>Connector protocol unused</strong></div>
+              <div class="detail">base.py defines Connector protocol, but no real connector implements it. All return [].</div>
+            </div>
+          </div>
+          <div class="status-item">
+            <span class="icon">🟡</span>
+            <div>
+              <div><strong>No feedback loop</strong></div>
+              <div class="detail">Learning loop from outcomes back to scoring weights doesn't exist anywhere.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 3: 9 CRITICAL GAPS ── -->
+  <div class="section" id="gaps">
+    <div class="section-header">
+      <div class="section-number">3</div>
+      <h2>9 Critical Gaps</h2>
+      <span class="section-tag tag-gaps">Must Resolve Before MVP</span>
+    </div>
+
+    <div class="gaps-grid">
+
+      <!-- GAP 1 -->
+      <div class="gap-card critical">
+        <div class="gap-content">
+          <div class="gap-header">
+            <div class="gap-number critical">1</div>
+            <h3>Watchlist Is Undefined — Pick 15 Tickers First</h3>
+            <span class="gap-severity sev-critical">Critical</span>
+          </div>
+          <p class="gap-desc">The score_watchlist pipeline stage has a complete, functional 6-factor weighted scoring algorithm — but it has nothing to score. <code style="font-family:monospace;font-size:12px;">portfolio.yaml</code> defines six watchlist categories (global_indices, equities, ETFs, FX, crypto, commodities) and all six are empty lists. Without tickers, every upstream fetcher call returns nothing, and the pipeline produces zero output even if everything else is wired correctly.</p>
+          <div class="gap-code">portfolio.yaml → watchlists: { global_indices: [], equities: [], etfs: [], fx: [], crypto: [], commodities: [] }</div>
+          <div class="gap-fix"><strong>Fix:</strong> Pick 10–15 starting tickers before writing a single line of connector code. Suggested starting set: 3–4 global indices (SPY/SPX, ASX200, Nasdaq, Nikkei), 4–5 quality equities (mix of ASX and US), 2 FX pairs (AUD/USD, USD/JPY), 1–2 commodities (Gold, Oil), 1 crypto (BTC or ETH). Without this decision, nothing else in the pipeline is testable.</div>
+        </div>
+      </div>
+
+      <!-- GAP 2 -->
+      <div class="gap-card critical">
+        <div class="gap-content">
+          <div class="gap-header">
+            <div class="gap-number critical">2</div>
+            <h3>run.py Is Not Wired — Pipeline Stages Never Execute</h3>
+            <span class="gap-severity sev-critical">Critical</span>
+          </div>
+          <p class="gap-desc">The entrypoint <code style="font-family:monospace;font-size:12px;">run.py</code> loads config and immediately returns <code style="font-family:monospace;font-size:12px;">{"status": "scaffold_ready"}</code>. It calls none of the 13 pipeline stages. This means even if the fetchers were connected, normalize, deduplicate, evidence_state, classify, verify, risk_gate, score, summarize, alert, and journal would never be invoked. The pipeline is architecturally correct but structurally unexecuted.</p>
+          <div class="gap-code">run_pipeline() → loads config → returns {"status": "scaffold_ready"} # no stages called</div>
+          <div class="gap-fix"><strong>Fix:</strong> Wire the manual-input MVP flow first: <code style="font-family:monospace;font-size:12px;">manual_items → normalize → evidence_state → verify_signal → brief</code>. Accept a list of hand-crafted RawMarketItems, pass them through the functional stages, and generate a brief. This creates a fully testable end-to-end pipeline run without needing real data connectors.</div>
+        </div>
+      </div>
+
+      <!-- GAP 3 -->
+      <div class="gap-card critical">
+        <div class="gap-content">
+          <div class="gap-header">
+            <div class="gap-number critical">3</div>
+            <h3>No Live Data Connectors — All Fetchers Return Empty Lists</h3>
+            <span class="gap-severity sev-critical">Critical</span>
+          </div>
+          <p class="gap-desc">Both <code style="font-family:monospace;font-size:12px;">fetch_market_data.py</code> and <code style="font-family:monospace;font-size:12px;">fetch_news_macro.py</code> are one-liners that return <code style="font-family:monospace;font-size:12px;">[]</code>. <code style="font-family:monospace;font-size:12px;">sources.yaml</code> has all sources set to <code style="font-family:monospace;font-size:12px;">connector: manual</code>. The <code style="font-family:monospace;font-size:12px;">Connector</code> protocol in <code style="font-family:monospace;font-size:12px;">base.py</code> is defined but no real connector implements it. The market data, news, and macro calendar connectors are all stubs.</p>
+          <div class="gap-code">fetch_market_data.py: def fetch_market_data(_cfg) → return []
+fetch_news_macro.py: def fetch_news_macro(_cfg) → return []</div>
+          <div class="gap-fix"><strong>Fix:</strong> Install yfinance (free, no API key) for market data as the first connector. It supports prices, volume, and historical data for most global indices and equities. Wire it into fetch_market_data to pull closing prices for the watchlist tickers. This unlocks normalize → deduplicate → evidence_state without needing any API key or paid subscription.</div>
+        </div>
+      </div>
+
+      <!-- GAP 4 -->
+      <div class="gap-card critical">
+        <div class="gap-content">
+          <div class="gap-header">
+            <div class="gap-number critical">4</div>
+            <h3>No LLM Provider Wired — Classify and Brief Are Both Placeholders</h3>
+            <span class="gap-severity sev-critical">Critical</span>
+          </div>
+          <p class="gap-desc"><code style="font-family:monospace;font-size:12px;">pipeline.yaml</code> has <code style="font-family:monospace;font-size:12px;">classification.model: placeholder</code>. The <code style="font-family:monospace;font-size:12px;">classify_signal.py</code> function ignores its prompt file and returns a "Phase 0 placeholder classification" for every item. <code style="font-family:monospace;font-size:12px;">summarize_brief.py</code> generates a markdown template with no intelligence. The prompt files <code style="font-family:monospace;font-size:12px;">signal_classifier_prompt.txt</code> and <code style="font-family:monospace;font-size:12px;">market_brief_prompt.txt</code> exist but are never called. The LLM is the intelligence layer — without it, CMC has no classification capability.</p>
+          <div class="gap-code">pipeline.yaml → classification.model: placeholder
+classify_signal.py → returns SignalItem(signal_type="no_trade_unclear", rationale="Phase 0 placeholder")</div>
+          <div class="gap-fix"><strong>Fix:</strong> Choose an LLM provider (Claude Haiku or GPT-4o-mini are cheapest at scale), install the SDK, and wire <code style="font-family:monospace;font-size:12px;">classify_signal.py</code> to call the API with <code style="font-family:monospace;font-size:12px;">signal_classifier_prompt.txt</code>. Validate the JSON schema output with pydantic or dataclass parsing. Replace <code style="font-family:monospace;font-size:12px;">model: placeholder</code> in pipeline.yaml with the actual model string.</div>
+        </div>
+      </div>
+
+      <!-- GAP 5 -->
+      <div class="gap-card high">
+        <div class="gap-content">
+          <div class="gap-header">
+            <div class="gap-number high">5</div>
+            <h3>No Backtesting Plan Before Paper Trading</h3>
+            <span class="gap-severity sev-high">High</span>
+          </div>
+          <p class="gap-desc">The roadmap jumps from MVP 1 (intelligence brief) directly to Phase 3 (paper trading) without a validation step. Paper trading on unvalidated signal logic means learning nothing — you don't know if results are due to the signals, the timing, random noise, or a bug in the pipeline. You need a backtest layer to validate that the scoring weights and classification logic produce useful signals on historical data before committing real time to paper trades.</p>
+          <div class="gap-code">Roadmap: MVP1 (brief) → Day 2 (risk gates) → Phase 3 (paper trading) ← missing: backtest validation</div>
+          <div class="gap-fix"><strong>Fix:</strong> Between Day 2 and Phase 3, add a historical backtest step using yfinance's historical data. Load 90 days of daily closes, run the pipeline against that data, check what signals the classify stage generates, and manually review whether the held/passed/blocked routing makes sense. This does not require a full backtesting framework — just running the pipeline on past data and reading the output.</div>
+        </div>
+      </div>
+
+      <!-- GAP 6 -->
+      <div class="gap-card high">
+        <div class="gap-content">
+          <div class="gap-header">
+            <div class="gap-number high">6</div>
+            <h3>Global Markets = 24/7 Signals with No Staleness Management</h3>
+            <span class="gap-severity sev-high">High</span>
+          </div>
+          <p class="gap-desc">CMC targets global markets across multiple time zones. Forex and crypto run 24/7. Asian equities open at 10am Tokyo time. The ASX opens at 10am AEST. US markets open at 9:30am ET. <code style="font-family:monospace;font-size:12px;">pipeline.yaml</code> defines <code style="font-family:monospace;font-size:12px;">stale_data_minutes</code> (intraday: 15, daily: 1440) but nothing enforces it. The <code style="font-family:monospace;font-size:12px;">verify_signal.py</code> code doesn't check timestamps for freshness. This means a news item from 14 hours ago could surface as an active signal when the next market opens.</p>
+          <div class="gap-code">pipeline.yaml → verify.stale_data_minutes: {intraday: 15, daily: 1440} ← not implemented in verify_signal.py
+pipeline.yaml → run.timezone: Australia/Sydney ← but no timezone-aware market calendar</div>
+          <div class="gap-fix"><strong>Fix:</strong> Add a staleness check to <code style="font-family:monospace;font-size:12px;">verify_signal.py</code> that compares <code style="font-family:monospace;font-size:12px;">fetched_at</code> against stale_data_minutes thresholds. Add a market calendar lookup (using <code style="font-family:monospace;font-size:12px;">exchange_calendars</code> or a simple dict) to skip signals outside trading hours for relevant markets. Tag signals with their market timezone at normalize stage.</div>
+        </div>
+      </div>
+
+      <!-- GAP 7 -->
+      <div class="gap-card high">
+        <div class="gap-content">
+          <div class="gap-header">
+            <div class="gap-number high">7</div>
+            <h3>Learning Loop Has No Feedback Mechanism</h3>
+            <span class="gap-severity sev-high">High</span>
+          </div>
+          <p class="gap-desc">The journal_store stage is designed to log every signal and decision. But nothing in the pipeline reads back from the journal to improve future scoring. The 6-factor weights in <code style="font-family:monospace;font-size:12px;">pipeline.yaml</code> (relevance: 0.25, evidence: 0.25, etc.) are static defaults and will never update unless someone manually edits the YAML. The Execution + Journal Agent in the blue-sky architecture is meant to "evaluate outcomes" — but there's no connection between journal records and any weight-updating or signal recalibration step.</p>
+          <div class="gap-code">pipeline.yaml → scoring.weights: {relevance: 0.25, evidence: 0.25, ...} ← static, never updated from outcomes
+journal_store.py → def journal_event(event) → {"status": "not_persisted"} ← doesn't even write yet</div>
+          <div class="gap-fix"><strong>Fix:</strong> Before building a full feedback loop, first fix journal persistence. Once trades and outcomes are being logged to JSONL files, add a weekly manual review step: compare signals that were classified as strong against their actual outcomes. Build a simple review script that reads the JSONL journal and shows which signal types had the best predictive value. Dynamic weight tuning comes later — manual review is Phase 3.</div>
+        </div>
+      </div>
+
+      <!-- GAP 8 -->
+      <div class="gap-card medium">
+        <div class="gap-content">
+          <div class="gap-header">
+            <div class="gap-number medium">8</div>
+            <h3>Human Override Patterns Aren't Tracked</h3>
+            <span class="gap-severity sev-medium">Medium</span>
+          </div>
+          <p class="gap-desc">CMC's design is explicitly supervised — the human reviews signals, decisions, and the review queue before any trade action occurs. But the current schema has no field for capturing what the human actually decided when shown a signal. When a signal is routed to the human review queue, there's no record of whether the human overrode, confirmed, dismissed, or escalated it. This makes it impossible to learn from human judgment patterns over time.</p>
+          <div class="gap-code">schemas/trades.py → decision enum: ["monitor", "research_deeper", "paper_trade_candidate", "reject", ...]
+ ← but no human_override field, no override_reason, no outcome_actual</div>
+          <div class="gap-fix"><strong>Fix:</strong> Add a <code style="font-family:monospace;font-size:12px;">human_review_outcome</code> field to SignalItem or TradeMemo: one of <code style="font-family:monospace;font-size:12px;">confirmed / dismissed / escalated / overridden</code>. Add an override_reason text field. This doesn't need UI — it can be filled manually via a review script or YAML edit for now. The data will be invaluable later when building the feedback loop or agent memory.</div>
+        </div>
+      </div>
+
+      <!-- GAP 9 -->
+      <div class="gap-card medium">
+        <div class="gap-content">
+          <div class="gap-header">
+            <div class="gap-number medium">9</div>
+            <h3>No Alert Delivery Channel — Briefs Die on Disk</h3>
+            <span class="gap-severity sev-medium">Medium</span>
+          </div>
+          <p class="gap-desc"><code style="font-family:monospace;font-size:12px;">alert_human.py</code> returns <code style="font-family:monospace;font-size:12px;">{"status": "not_sent", "brief_chars": len(brief)}</code>. The market brief is generated (via the template in summarize_brief.py) but goes nowhere. For CMC to be useful as a daily intelligence tool, the human needs to receive the brief somewhere — whether via Telegram message, email, or even a plain file saved to disk with a notification. Without delivery, the pipeline is a tree falling in a forest.</p>
+          <div class="gap-code">alert_human.py: def alert_human(brief, _cfg) → {"status": "not_sent", "brief_chars": len(brief)}</div>
+          <div class="gap-fix"><strong>Fix:</strong> The easiest first delivery channel is a Telegram Bot (free, no server needed, works on mobile). Create a bot via @BotFather, store the token in <code style="font-family:monospace;font-size:12px;">.env</code>, and send the brief text as a message. Alternatively, write the brief to <code style="font-family:monospace;font-size:12px;">data/briefs/YYYY-MM-DD.md</code> as a minimum. Either way, the human needs to see output for CMC to be useful in its most basic form.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── SECTION 4: TECH STACK ── -->
+  <div class="section" id="stack">
+    <div class="section-header">
+      <div class="section-number">4</div>
+      <h2>Recommended Tech Stack</h2>
+      <span class="section-tag tag-stack">Free-First, Upgrade Later</span>
+    </div>
+
+    <div class="cost-summary">
+      <div>
+        <div class="cost-label">Estimated Monthly Cost — MVP 1</div>
+        <div class="cost-range">$3 – $20 / month</div>
+        <div class="cost-note">Runs entirely on your laptop. No server required for MVP.</div>
+      </div>
+      <div class="cost-items">
+        <div class="cost-item">
+          <span class="ci-val">$0</span>
+          <span class="ci-label">Market Data</span>
+        </div>
+        <div class="cost-item">
+          <span class="ci-val">$0</span>
+          <span class="ci-label">Alerts</span>
+        </div>
+        <div class="cost-item">
+          <span class="ci-val">$0–5</span>
+          <span class="ci-label">News</span>
+        </div>
+        <div class="cost-item">
+          <span class="ci-val">$3–15</span>
+          <span class="ci-label">LLM API</span>
+        </div>
+        <div class="cost-item">
+          <span class="ci-val">$0</span>
+          <span class="ci-label">Infrastructure</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stack-table-wrap">
+      <table class="stack-table">
+        <thead>
+          <tr>
+            <th>Role in Pipeline</th>
+            <th>Recommended Tool</th>
+            <th>Cost</th>
+            <th>Why</th>
+            <th>Install</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="role-col">Market Data (prices, OHLCV)</td>
+            <td class="tool-col">yfinance <span class="free-pill">FREE</span></td>
+            <td class="cost-col">$0</td>
+            <td>Yahoo Finance scraper — no API key, supports global indices, equities, FX, crypto, ETFs. Ideal for daily closing data.</td>
+            <td class="pip-col">pip install yfinance</td>
+          </tr>
+          <tr>
+            <td class="role-col">Market Data (upgrade)</td>
+            <td class="tool-col">Alpha Vantage <span class="free-pill">FREE TIER</span></td>
+            <td class="cost-col">$0–$50</td>
+            <td>Free tier: 25 API calls/day. Paid: real-time intraday. Better for intraday signals when needed.</td>
+            <td class="pip-col">pip install alpha-vantage</td>
+          </tr>
+          <tr>
+            <td class="role-col">News &amp; Headlines</td>
+            <td class="tool-col">RSS + feedparser <span class="free-pill">FREE</span></td>
+            <td class="cost-col">$0</td>
+            <td>No API key. Reuters, FT, Bloomberg (free), ASX announcements all have RSS. Perfect for news_connector.</td>
+            <td class="pip-col">pip install feedparser</td>
+          </tr>
+          <tr>
+            <td class="role-col">News API (upgrade)</td>
+            <td class="tool-col">NewsAPI.org</td>
+            <td class="cost-col">$0–$9</td>
+            <td>Developer plan free (100 req/day). $9/mo for 250k articles. Structured search across major publishers.</td>
+            <td class="pip-col">pip install newsapi-python</td>
+          </tr>
+          <tr>
+            <td class="role-col">Macro Calendar (rates, FOMC, CPI)</td>
+            <td class="tool-col">FRED API <span class="free-pill">FREE</span></td>
+            <td class="cost-col">$0</td>
+            <td>Federal Reserve Economic Data — free, no rate limits on most endpoints. Covers US macro series, interest rates, employment.</td>
+            <td class="pip-col">pip install fredapi</td>
+          </tr>
+          <tr>
+            <td class="role-col">LLM — Signal Classification</td>
+            <td class="tool-col">Claude Haiku 3.5 (Anthropic)</td>
+            <td class="cost-col">$3–10</td>
+            <td>Cheapest capable model for structured JSON classification. ~$0.001/signal at typical usage. 200k context window handles full evidence bodies.</td>
+            <td class="pip-col">pip install anthropic</td>
+          </tr>
+          <tr>
+            <td class="role-col">LLM — Market Brief</td>
+            <td class="tool-col">Claude Haiku 3.5 (same)</td>
+            <td class="cost-col">Included above</td>
+            <td>Same model for brief generation. Brief summaries are 1–2 calls per run. Total daily LLM cost for MVP: &lt;$0.10.</td>
+            <td class="pip-col">pip install anthropic</td>
+          </tr>
+          <tr>
+            <td class="role-col">Alert Delivery</td>
+            <td class="tool-col">Telegram Bot API <span class="free-pill">FREE</span></td>
+            <td class="cost-col">$0</td>
+            <td>Free, instant, works on mobile. No server needed. Create bot with @BotFather. Send daily brief as a message to yourself.</td>
+            <td class="pip-col">pip install python-telegram-bot</td>
+          </tr>
+          <tr>
+            <td class="role-col">Scheduler</td>
+            <td class="tool-col">APScheduler <span class="free-pill">FREE</span></td>
+            <td class="cost-col">$0</td>
+            <td>In-process scheduler. No daemon or cron setup needed. Schedule daily runs at market open time in Australia/Sydney timezone.</td>
+            <td class="pip-col">pip install apscheduler</td>
+          </tr>
+          <tr>
+            <td class="role-col">Market Calendar (hours/holidays)</td>
+            <td class="tool-col">exchange_calendars <span class="free-pill">FREE</span></td>
+            <td class="cost-col">$0</td>
+            <td>Python library with calendars for 50+ exchanges including ASX, NYSE, LSE, TSE. Handles holidays, early closes, timezone offsets.</td>
+            <td class="pip-col">pip install exchange-calendars</td>
+          </tr>
+          <tr>
+            <td class="role-col">Data Processing</td>
+            <td class="tool-col">pandas <span class="free-pill">FREE</span></td>
+            <td class="cost-col">$0</td>
+            <td>Required by yfinance. Essential for time-series manipulation, resampling OHLCV data, and deduplication logic.</td>
+            <td class="pip-col">pip install pandas</td>
+          </tr>
+          <tr>
+            <td class="role-col">Environment / Secrets</td>
+            <td class="tool-col">python-dotenv <span class="free-pill">FREE</span></td>
+            <td class="cost-col">$0</td>
+            <td>Load API keys from .env file (already gitignored). Required before any real connector is wired.</td>
+            <td class="pip-col">pip install python-dotenv</td>
+          </tr>
+          <tr>
+            <td class="role-col">Broker Integration (Phase 3+)</td>
+            <td class="tool-col">Interactive Brokers TWS API</td>
+            <td class="cost-col">$0 + brokerage</td>
+            <td>Full paper trading sandbox. Free IB account for paper trading. Supports global equities, FX, options. No additional API cost.</td>
+            <td class="pip-col">pip install ib_insync</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="info-card">
+      <h4>Updated pyproject.toml — MVP Dependencies</h4>
+      <div style="background:var(--navy);color:#a3cef1;border-radius:8px;padding:16px 20px;font-family:'SF Mono','Fira Code',Menlo,monospace;font-size:12px;line-height:1.7;overflow-x:auto;margin-top:8px;">
+        <span style="color:#88a89c;"># pyproject.toml — MVP 1 dependencies</span><br>
+        dependencies = [<br>
+        &nbsp;&nbsp;<span style="color:#ffd166;">"pyyaml>=6.0"</span>,<br>
+        &nbsp;&nbsp;<span style="color:#ffd166;">"python-dotenv>=1.0"</span>,<span style="color:#88a89c;">  # load API keys from .env</span><br>
+        &nbsp;&nbsp;<span style="color:#ffd166;">"yfinance>=0.2"</span>,<span style="color:#88a89c;">  # market data — no API key needed</span><br>
+        &nbsp;&nbsp;<span style="color:#ffd166;">"pandas>=2.0"</span>,<span style="color:#88a89c;">  # required by yfinance, time-series ops</span><br>
+        &nbsp;&nbsp;<span style="color:#ffd166;">"feedparser>=6.0"</span>,<span style="color:#88a89c;">  # RSS news sources</span><br>
+        &nbsp;&nbsp;<span style="color:#ffd166;">"anthropic>=0.25"</span>,<span style="color:#88a89c;">  # Claude Haiku for classify + brief</span><br>
+        &nbsp;&nbsp;<span style="color:#ffd166;">"apscheduler>=3.10"</span>,<span style="color:#88a89c;">  # run on schedule</span><br>
+        &nbsp;&nbsp;<span style="color:#ffd166;">"python-telegram-bot>=20.0"</span>,<span style="color:#88a89c;">  # alert delivery</span><br>
+        &nbsp;&nbsp;<span style="color:#ffd166;">"exchange-calendars>=4.0"</span>,<span style="color:#88a89c;">  # market hours / staleness</span><br>
+        ]
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 5: PHASED ROADMAP ── -->
+  <div class="section" id="roadmap">
+    <div class="section-header">
+      <div class="section-number">5</div>
+      <h2>Phased Build Roadmap</h2>
+      <span class="section-tag tag-road">Phase 0 → Phase 6</span>
+    </div>
+
+    <div class="phases-container">
+
+      <!-- PHASE 0 -->
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-badge phase-current">✅ Phase 0 — DONE</span>
+          <h3>Foundation Scaffold</h3>
+          <span class="phase-eta">Complete (June 2026)</span>
+        </div>
+        <div class="phase-body">
+          <div class="phase-cols">
+            <div class="phase-col">
+              <h4>Delivered</h4>
+              <ul>
+                <li>Full directory structure</li>
+                <li>schemas/ — RawMarketItem, NormalizedMarketItem, SignalItem, ScoredSignal</li>
+                <li>connectors/ — base protocol + 5 stubs</li>
+                <li>pipeline/ — all 12 stage modules (6 functional, 6 stub)</li>
+                <li>config/ — pipeline, sources, risk, portfolio YAML</li>
+                <li>prompts/ — classifier + brief prompt placeholders</li>
+                <li>jsonl_store.py — functional persistence helper</li>
+                <li>CONTEXT.md, CLAUDE.md, AGENTS.md</li>
+                <li>2 passing tests</li>
+              </ul>
+            </div>
+            <div class="phase-col">
+              <h4>Not Included</h4>
+              <ul>
+                <li>Real data providers</li>
+                <li>LLM calls</li>
+                <li>Broker API calls</li>
+                <li>Paper trading</li>
+                <li>Live execution</li>
+                <li>Alert delivery</li>
+                <li>Journal persistence</li>
+              </ul>
+            </div>
+            <div class="phase-col">
+              <h4>Gap Left Behind</h4>
+              <ul>
+                <li>run.py not wired</li>
+                <li>Watchlist empty</li>
+                <li>No libs in pyproject.toml</li>
+                <li>LLM model: placeholder</li>
+                <li>All connectors: manual</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MVP 1 -->
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-badge phase-next">🟡 MVP 1 — Build Now</span>
+          <h3>Market Intelligence Brief + Dashboard</h3>
+          <span class="phase-eta">Target: 4–6 weeks</span>
+        </div>
+        <div class="phase-body">
+          <div class="phase-cols">
+            <div class="phase-col">
+              <h4>Build</h4>
+              <ul>
+                <li>Define watchlist — 10–15 tickers</li>
+                <li>Wire run.py end-to-end</li>
+                <li>Install dependencies (yfinance, anthropic, dotenv)</li>
+                <li>market_data_connector.py → yfinance</li>
+                <li>news_connector.py → RSS feedparser</li>
+                <li>classify_signal.py → Claude Haiku API call</li>
+                <li>summarize_brief.py → Claude Haiku brief call</li>
+                <li>alert_human.py → Telegram delivery</li>
+                <li>journal_store.py → persist to JSONL</li>
+                <li>Persist structured run data for dashboard rendering</li>
+                <li>Build local dashboard for human-friendly review</li>
+                <li>Prototype draggable globe view for global signals and cross-asset correlations</li>
+                <li>Add staleness check to verify_signal.py</li>
+              </ul>
+            </div>
+            <div class="phase-col">
+              <h4>Outputs</h4>
+              <ul>
+                <li>Market regime (bull/bear/mixed)</li>
+                <li>Risk tone (risk-on / risk-off)</li>
+                <li>Top global market moves</li>
+                <li>Top 5 structured signals</li>
+                <li>Held-for-review signals</li>
+                <li>Watchlist changes</li>
+                <li>No-trade warnings</li>
+                <li>Local dashboard for latest run review</li>
+                <li>Interactive global signal and correlation exploration mode</li>
+                <li>Risk-blocked and held-for-review queues</li>
+                <li>Brief delivered via Telegram</li>
+                <li>Markdown/email brief as backup delivery</li>
+                <li>All decisions logged to JSONL</li>
+              </ul>
+            </div>
+            <div class="phase-col">
+              <h4>Explicitly Excluded</h4>
+              <ul>
+                <li>Live trading</li>
+                <li>Autonomous execution</li>
+                <li>Leverage recommendations</li>
+                <li>Options execution</li>
+                <li>Portfolio optimization</li>
+                <li>Broker integration</li>
+                <li>Complex multi-agent orchestration</li>
+              </ul>
+            </div>
+          </div>
+          <div class="phase-pin">📌 Pin: MVP 1 = monitoring and decision support only. A local dashboard plus daily brief. No trades.</div>
+        </div>
+      </div>
+
+      <!-- DAY 2 -->
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-badge phase-next">🔵 Day 2 — Evidence + Risk Gates</span>
+          <h3>Stop Weak Evidence Becoming Trade Ideas</h3>
+          <span class="phase-eta">Weeks 6–10</span>
+        </div>
+        <div class="phase-body">
+          <div class="phase-cols">
+            <div class="phase-col">
+              <h4>Build</h4>
+              <ul>
+                <li>Harden evidence_state with trust scoring</li>
+                <li>Wire verify_signal staleness check fully</li>
+                <li>Add risk_guardian veto logic for leverage/sizing</li>
+                <li>Build review_queue persistence to data/review/</li>
+                <li>Add human_review_outcome field to schemas</li>
+                <li>Weekly journal review script</li>
+                <li>Add macro_calendar_connector (FRED API)</li>
+              </ul>
+            </div>
+            <div class="phase-col">
+              <h4>Outputs</h4>
+              <ul>
+                <li>Passed signals (evidence OK)</li>
+                <li>Held signals (weak evidence)</li>
+                <li>Risk-blocked trade ideas</li>
+                <li>Paper-trade candidates only</li>
+                <li>Human override record</li>
+              </ul>
+            </div>
+            <div class="phase-col">
+              <h4>Excluded</h4>
+              <ul>
+                <li>Live execution</li>
+                <li>Autonomous broker actions</li>
+                <li>Complex multi-agent orchestration</li>
+                <li>Dynamic weight tuning</li>
+              </ul>
+            </div>
+          </div>
+          <div class="phase-pin">📌 Pin: Day 2 = no live trading. Paper candidates only. Every signal logged with human outcome.</div>
+        </div>
+      </div>
+
+      <!-- PHASE 2.5: BACKTEST -->
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-badge phase-next">🧪 Phase 2.5 — Historical Validation</span>
+          <h3>Validate Before Paper Trading</h3>
+          <span class="phase-eta">Weeks 10–12</span>
+        </div>
+        <div class="phase-body">
+          <div class="phase-cols">
+            <div class="phase-col">
+              <h4>Build</h4>
+              <ul>
+                <li>Historical mode in run.py (date range input)</li>
+                <li>Load 90-day OHLCV for watchlist from yfinance</li>
+                <li>Run pipeline against historical data</li>
+                <li>Signal accuracy review — passed vs. actual outcome</li>
+                <li>Tune scoring weights based on results</li>
+              </ul>
+            </div>
+            <div class="phase-col">
+              <h4>Validate</h4>
+              <ul>
+                <li>Are classification categories sensible?</li>
+                <li>Does the evidence hold logic catch bad signals?</li>
+                <li>Do scoring weights produce useful rankings?</li>
+                <li>How many signals per week reach paper trade?</li>
+              </ul>
+            </div>
+            <div class="phase-col">
+              <h4>Excluded</h4>
+              <ul>
+                <li>Full backtesting framework</li>
+                <li>Strategy optimization</li>
+                <li>Monte Carlo simulation</li>
+              </ul>
+            </div>
+          </div>
+          <div class="phase-pin">📌 This phase is missing from the current roadmap. Add it. Paper trading on unvalidated logic produces nothing learnable.</div>
+        </div>
+      </div>
+
+      <!-- PHASE 3 -->
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-badge phase-future">⏳ Phase 3 — Paper Trading</span>
+          <h3>Human-Approved Paper Execution</h3>
+          <span class="phase-eta">Months 3–5</span>
+        </div>
+        <div class="phase-body">
+          <div class="phase-cols">
+            <div class="phase-col">
+              <h4>Build</h4>
+              <ul>
+                <li>Broker sandbox integration (IBKR paper account)</li>
+                <li>Trade memo generation (entry, stop, target, R/R)</li>
+                <li>Human approval flow (explicit confirm required)</li>
+                <li>Paper execution logging</li>
+                <li>P&amp;L tracking and outcome capture</li>
+                <li>Mistake log with review notes</li>
+              </ul>
+            </div>
+            <div class="phase-col">
+              <h4>Safety Gates Required</h4>
+              <ul>
+                <li>No live trading mixed with paper</li>
+                <li>Max 5 open paper positions</li>
+                <li>Trade memo must have invalidation</li>
+                <li>All decisions logged</li>
+              </ul>
+            </div>
+            <div class="phase-col">
+              <h4>Excluded</h4>
+              <ul>
+                <li>Live execution</li>
+                <li>Margin or leverage</li>
+                <li>Options</li>
+                <li>Automated order placement</li>
+              </ul>
+            </div>
+          </div>
+          <div class="phase-locked">🔒 Locked until Phase 2.5 validation shows signals are meaningful</div>
+        </div>
+      </div>
+
+      <!-- PHASE 4 -->
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-badge phase-future">⏳ Phase 4 — Portfolio Layer</span>
+          <h3>Exposure, Correlation &amp; Drawdown Rules</h3>
+          <span class="phase-eta">Months 5–8</span>
+        </div>
+        <div class="phase-body">
+          <div class="phase-cols">
+            <div class="phase-col">
+              <h4>Build</h4>
+              <ul>
+                <li>Portfolio exposure engine (position, cash, sector)</li>
+                <li>Correlation checks — hidden concentration</li>
+                <li>Daily/weekly/portfolio drawdown stops</li>
+                <li>Watchlist scoring adjusted for portfolio fit</li>
+              </ul>
+            </div>
+            <div class="phase-col">
+              <h4>Config in Place</h4>
+              <ul>
+                <li>risk.yaml: max 10% single asset</li>
+                <li>risk.yaml: max 25% single sector</li>
+                <li>risk.yaml: max 2 correlated trades</li>
+                <li>risk.yaml: max 5 open positions</li>
+              </ul>
+            </div>
+            <div class="phase-col">
+              <h4>Excluded</h4>
+              <ul>
+                <li>Portfolio optimization algorithms</li>
+                <li>Mean-variance optimization</li>
+                <li>Live risk monitoring</li>
+              </ul>
+            </div>
+          </div>
+          <div class="phase-locked">🔒 Locked until Phase 3 paper trading is running with real P&L data</div>
+        </div>
+      </div>
+
+      <!-- PHASE 5 + 6 -->
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-badge phase-future">⏳ Phase 5 & 6 — Live Execution + Multi-Agent</span>
+          <h3>Permissioned Live Trading &amp; Blue-Sky Architecture</h3>
+          <span class="phase-eta">Months 9+</span>
+        </div>
+        <div class="phase-body">
+          <div class="phase-cols">
+            <div class="phase-col">
+              <h4>Phase 5 — Live Gates</h4>
+              <ul>
+                <li>Broker gate (order type, spread, liquidity)</li>
+                <li>Explicit human approval — click to confirm</li>
+                <li>Small size only — strict max-loss cap</li>
+                <li>Kill switch — disable on errors or drawdown</li>
+                <li>Full audit log before any live order</li>
+              </ul>
+            </div>
+            <div class="phase-col">
+              <h4>Phase 6 — Multi-Agent</h4>
+              <ul>
+                <li>8-agent orchestration layer</li>
+                <li>Scenario simulation (macro stress)</li>
+                <li>Strategy evaluation by regime</li>
+                <li>Dynamic weight tuning from journal</li>
+                <li>Agent memory and feedback loops</li>
+              </ul>
+            </div>
+            <div class="phase-col">
+              <h4>Safety Prerequisites</h4>
+              <ul>
+                <li>Written risk framework signed off</li>
+                <li>Broker execution review passed</li>
+                <li>Max-loss cap configured and tested</li>
+                <li>Kill switch tested in paper mode</li>
+                <li>6+ months paper trading data</li>
+              </ul>
+            </div>
+          </div>
+          <div class="phase-locked">🔒 Phase 5 locked until all 6 safety gates listed in CONTEXT.md are in place. Phase 6 is the blue-sky ideal state.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── SECTION 6: SPRINT PLAN ── -->
+  <div class="section" id="sprint">
+    <div class="section-header">
+      <div class="section-number">6</div>
+      <h2>Week 1 Sprint — Days 1–5</h2>
+      <span class="section-tag tag-sprint">Concrete First Steps</span>
+    </div>
+
+    <div class="sprint-header">
+      <h3>Goal: Get One End-to-End Pipeline Run Producing Real Output</h3>
+      <p>By end of Week 1 you should have a working pipeline that fetches real market data for a defined watchlist, normalizes it, applies evidence and verification logic, generates a brief, and delivers it somewhere you can see it. No LLM calls required in Week 1 — validation first.</p>
+      <div class="sprint-goal">
+        <span class="goal-pill">✅ Define watchlist</span>
+        <span class="goal-pill">✅ Wire run.py</span>
+        <span class="goal-pill">✅ Real market data</span>
+        <span class="goal-pill">✅ First brief output</span>
+        <span class="goal-pill">✅ Journal persisted</span>
+      </div>
+    </div>
+
+    <div class="days-grid">
+
+      <!-- DAY 1 -->
+      <div class="day-card day-1">
+        <div class="day-header">
+          <div class="day-number">1</div>
+          Define the Watchlist &amp; Install Dependencies
+        </div>
+        <div class="day-body">
+          <div class="day-task">
+            <div class="task-check"></div>
+            <div>
+              <div class="task-label">Pick 10–15 starting tickers</div>
+              <div class="task-sub">Suggested: SPY, QQQ, ASX200 (^AXJO), BTC-USD, AUDUSD=X, GC=F (Gold), AAPL, BHP.AX, CBA.AX, ^N225 (Nikkei), CL=F (Oil)</div>
+            </div>
+          </div>
+          <div class="day-task">
+            <div class="task-check"></div>
+            <div>
+              <div class="task-label">Populate portfolio.yaml watchlists</div>
+              <div class="task-sub">Add tickers to global_indices, equities, fx, crypto, commodities lists</div>
+            </div>
+          </div>
+          <div class="day-task">
+            <div class="task-check"></div>
+            <div>
+              <div class="task-label">Update pyproject.toml with MVP dependencies</div>
+              <div class="task-sub">Add: yfinance, pandas, feedparser, anthropic, python-dotenv, apscheduler, python-telegram-bot, exchange-calendars</div>
+            </div>
+          </div>
+          <div class="day-task">
+            <div class="task-check"></div>
+            <div>
+              <div class="task-label">Run pip install -e ".[dev]" and verify imports</div>
+              <div class="task-sub">Confirm yfinance and anthropic import cleanly. Test: python -c "import yfinance as yf; print(yf.Ticker('SPY').info['regularMarketPrice'])"</div>
+            </div>
+          </div>
+          <div class="day-task">
+            <div class="task-check"></div>
+            <div>
+              <div class="task-label">Create .env file with API key slots</div>
+              <div class="task-sub">ANTHROPIC_API_KEY=, TELEGRAM_BOT_TOKEN=, TELEGRAM_CHAT_ID= — leave empty for now, but structure in place</div>
+            </div>
+          </div>
+          <div class="day-deliverable">
+            <strong>Day 1 Deliverable:</strong> Watchlist defined, dependencies installed, env file ready. Running <code style="font-family:monospace;font-size:11px;">python -c "import yfinance"</code> works.
+          </div>
+        </div>
+      </div>
+
+      <!-- DAY 2 -->
+      <div class="day-card day-2">
+        <div class="day-header">
+          <div class="day-number">2</div>
+          Build market_data_connector.py with yfinance
+        </div>
+        <div class="day-body">
+          <div class="day-task">
+            <div class="task-check"></div>
+            <div>
+              <div class="task-label">Implement MarketDataConnector using yfinance</div>
+              <div class="task-sub">Use yf.download() or yf.Ticker().history(period='1d') to fetch OHLCV for each watchlist ticker</div>
+            </div>
+          </div>
+          <div class="day-task">
+            <div class="task-check"></div>
+            <div>
+              <div class="task-label">Convert yfinance rows to RawMarketItem dataclasses</div>
+              <div class="task-sub">Map: asset=ticker, source_type='price', trust_tier='market_data', body=f"Close: {close}, Volume: {volume}, Change: {pct_change}%"</div>
+            </div>
+          </div>
+          <div class="day-task">
+            <div class="task-check"></div>
+            <div>
+              <div class="task-label">Wire fetch_market_data.py to call the connector</div>
+              <div class="task-sub">Replace "return []" with a connector call. Load watchlist tickers from portfolio.yaml via load_config()</div>
+            </div>
+          </div>
+          <div class="day-task">
+            <div class="task-check"></div>
+            <div>
+              <div class="task-label">Write a quick test: fetch returns items with real prices</div>
+              <div class="task-sub">Assert len(items) > 0 and items[0].asset in watchlist and items[0].source_type == 'price'</div>
+            </div>
+          </div>
+          <div class="day-deliverable">
+            <strong>Day 2 Deliverable:</strong> fetch_market_data.py returns real RawMarketItem objects with closing prices for each watchlist ticker.
+          </div>
+        </div>
+      </div>
+
+      <!-- DAY 3 -->
+      <div class="day-card day-3">
+        <div class="day-header">
+          <div class="day-number">3</div>
+          Wire run.py End-to-End (Manual Flow)
+        </div>
+        <div class="day-body">
+          <div class="day-task">
+            <div class="task-check"></div>
+            <div>
+              <div class="task-label">Wire the full pipeline in run.py</div>
+              <div class="task-sub">Call: fetch_market_data → normalize → deduplicate → evidence_state → classify (placeholder still OK) → verify → risk_gate → score → summarize → alert → journal</div>
+            </div>
+          </div>
+          <div class="day-task">
+            <div class="task-check"></div>
+            <div>
+              <div class="task-label">Fix journal_store.py to actually persist to JSONL</div>
+              <div class="task-sub">Call jsonl_store.append_jsonl(data/journal/YYYY-MM-DD.jsonl, events). Replace "not_persisted" stub.</div>
+            </div>
+          </div>
+          <div class="day-task">
+            <div class="task-check"></div>
+            <div>
+              <div class="task-label">Fix alert_human.py to write brief to data/briefs/ folder</div>
+              <div class="task-sub">As minimum: write data/briefs/YYYY-MM-DD.md with the brief text. Print to console too.</div>
+            </div>
+          </div>
+          <div class="day-task">
+            <div class="task-check"></div>
+            <div>
+              <div class="task-label">Run the pipeline once and read the output</div>
+              <div class="task-sub">python -m cmc.run — check that items flow through all stages, brief is generated, JSONL file exists</div>
+            </div>
+          </div>
+          <div class="day-task">
+            <div class="task-check"></div>
+            <div>
+              <div class="task-label">Fix any schema errors or missing field bugs</div>
+              <div class="task-sub">The placeholder classify_signal returns SignalItem with all zeros — verify_signal and risk_gate should handle that gracefully</div>
+            </div>
+          </div>
+          <div class="day-deliverable">
+            <strong>Day 3 Deliverable:</strong> <code style="font-family:monospace;font-size:11px;">python -m cmc.run</code> executes all 13 stages and writes a brief file to data/briefs/. JSONL entries exist in data/journal/.
+          </div>
+        </div>
+      </div>
+
+      <!-- DAY 4 -->
+      <div class="day-card day-4">
+        <div class="day-header">
+          <div class="day-number">4</div>
+          Wire LLM Classification + RSS News
+        </div>
+        <div class="day-body">
+          <div class="day-task">
+            <div class="task-check"></div>
+            <div>
+              <div class="task-label">Add ANTHROPIC_API_KEY to .env and load via dotenv</div>
+              <div class="task-sub">import dotenv; dotenv.load_dotenv() in config.py or run.py</div>
+            </div>
+          </div>
+          <div class="day-task">
+            <div class="task-check"></div>
+            <div>
+              <div class="task-label">Wire classify_signal.py to call Claude Haiku</div>
+              <div class="task-sub">Load signal_classifier_prompt.txt, format with item body, call anthropic.Anthropic().messages.create(), parse JSON response into SignalItem fields</div>
+            </div>
+          </div>
+          <div class="day-task">
+            <div class="task-check"></div>
+            <div>
+              <div class="task-label">Update pipeline.yaml: classification.model → claude-haiku-3-5</div>
+              <div class="task-sub">Replace "placeholder" with actual model string. Add fallback: if LLM call fails, return no_trade_unclear with reason logged.</div>
+            </div>
+          </div>
+          <div class="day-task">
+            <div class="task-check"></div>
+            <div>
+              <div class="task-label">Build news_connector.py with feedparser (RSS)</div>
+              <div class="task-sub">Parse 3–4 RSS feeds: Reuters Business, FT Markets, Bloomberg Economy, ASX Market Announcements. Convert to RawMarketItem with trust_tier='primary'</div>
+            </div>
+          </div>
+          <div class="day-task">
+            <div class="task-check"></div>
+            <div>
+              <div class="task-label">Run pipeline with real classification. Read output carefully.</div>
+              <div class="task-sub">Check: are signal_types making sense? Is the LLM returning valid JSON? Are news items being deduplicated correctly?</div>
+            </div>
+          </div>
+          <div class="day-deliverable">
+            <strong>Day 4 Deliverable:</strong> Pipeline runs with real market data, real news items, and LLM classification. Brief contains actual signals. LLM cost &lt; $0.05 per run.
+          </div>
+        </div>
+      </div>
+
+      <!-- DAY 5 -->
+      <div class="day-card day-5 day-5-full">
+        <div class="day-header">
+          <div class="day-number">5</div>
+          Brief Delivery, Staleness Check &amp; First Review
+        </div>
+        <div class="day-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+            <div>
+              <div class="day-task">
+                <div class="task-check"></div>
+                <div>
+                  <div class="task-label">Wire Telegram delivery in alert_human.py</div>
+                  <div class="task-sub">Create Telegram bot via @BotFather. Add TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID to .env. Send brief via Bot.send_message(). Max 4096 chars per message — split if needed.</div>
+                </div>
+              </div>
+              <div class="day-task">
+                <div class="task-check"></div>
+                <div>
+                  <div class="task-label">Add staleness check to verify_signal.py</div>
+                  <div class="task-sub">Compare item.fetched_at against stale_data_minutes from pipeline.yaml. Flag stale items as held with reason 'stale_data'. Check against market hours using exchange_calendars.</div>
+                </div>
+              </div>
+              <div class="day-task">
+                <div class="task-check"></div>
+                <div>
+                  <div class="task-label">Wire summarize_brief.py to call Claude Haiku for narrative</div>
+                  <div class="task-sub">Load market_brief_prompt.txt, format with top signals and regime context, generate a 3–4 paragraph narrative summary. Append to the markdown brief.</div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="day-task">
+                <div class="task-check"></div>
+                <div>
+                  <div class="task-label">Run the complete pipeline end-to-end</div>
+                  <div class="task-sub">Confirm: data fetched → classified → brief generated → Telegram message received → JSONL journal has entries</div>
+                </div>
+              </div>
+              <div class="day-task">
+                <div class="task-check"></div>
+                <div>
+                  <div class="task-label">Read the first real brief and manually review it</div>
+                  <div class="task-sub">Are the signals sensible? Does the regime assessment match what you see in markets? Flag any classification errors. Note what's missing. This is your first feedback loop iteration.</div>
+                </div>
+              </div>
+              <div class="day-task">
+                <div class="task-check"></div>
+                <div>
+                  <div class="task-label">Update CONTEXT.md with current state</div>
+                  <div class="task-sub">Change stage from "Phase 0 scaffold" to "MVP 1 active". Log what worked, what surprised you, and what needs tuning next week.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="day-deliverable" style="margin-top:16px;">
+            <strong>Day 5 / End of Week 1 Deliverable:</strong> You can open a local dashboard showing the latest market regime, risk tone, top signals, held-for-review items, risk-blocked items, and watchlist scores. You also receive a daily brief as backup delivery. The pipeline fetches live data, classifies signals, filters by evidence quality, and logs structured run data for review. CMC is operational at MVP 1 level with no live trades approved.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── SECTION 7: SAFETY BOUNDARY ── -->
+  <div class="section" id="safety">
+    <div class="section-header">
+      <div class="section-number">7</div>
+      <h2>Safety Boundary — Non-Negotiable</h2>
+    </div>
+
+    <div class="safety-box">
+      <h3>⚠️ No Live Trading Until ALL Six Gates Are In Place</h3>
+      <ul>
+        <li>Explicit human approval required for every trade</li>
+        <li>Written risk framework — documented and signed off</li>
+        <li>Broker execution review — order type, spread, slippage checked</li>
+        <li>Max-loss cap — configured, tested, enforced in code</li>
+        <li>Kill switch — tested in paper mode, disables trading on drawdown or error</li>
+        <li>Full audit log — every signal, decision, and outcome recorded</li>
+      </ul>
+    </div>
+
+    <div class="two-col">
+      <div class="info-card">
+        <h4>Current Risk Limits (risk.yaml)</h4>
+        <div class="kv-row"><span class="kv-key">Max risk per trade</span><span class="kv-val">0.25%</span></div>
+        <div class="kv-row"><span class="kv-key">Max daily loss</span><span class="kv-val">1.0%</span></div>
+        <div class="kv-row"><span class="kv-key">Max weekly loss</span><span class="kv-val">2.0%</span></div>
+        <div class="kv-row"><span class="kv-key">Max open positions</span><span class="kv-val">5</span></div>
+        <div class="kv-row"><span class="kv-key">Max single asset exposure</span><span class="kv-val">10%</span></div>
+        <div class="kv-row"><span class="kv-key">Max single sector exposure</span><span class="kv-val">25%</span></div>
+        <div class="kv-row"><span class="kv-key">Live trading allowed</span><span class="kv-val" style="color:#4caf50">false ✓</span></div>
+        <div class="kv-row"><span class="kv-key">Margin allowed</span><span class="kv-val" style="color:#4caf50">false ✓</span></div>
+        <div class="kv-row"><span class="kv-key">Shorts allowed</span><span class="kv-val" style="color:#4caf50">false ✓</span></div>
+        <div class="kv-row"><span class="kv-key">Human approval required</span><span class="kv-val" style="color:#4caf50">true ✓</span></div>
+      </div>
+      <div class="info-card">
+        <h4>Design Motto</h4>
+        <p style="font-style:italic;font-size:15px;color:var(--navy);line-height:1.8;margin-bottom:14px;">"CSC finds external strategic signals.<br>CDC finds internal customer signals.<br>CMC finds market signals, but <strong>Risk Guardian decides whether they are tradable.</strong>"</p>
+        <p>CMC's job is to surface information and structure decisions — not to execute them. The human is always the final gate. Every strong opinion from CMC is a recommendation for review, not an instruction to act.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── FOOTER ── -->
+<div class="doc-footer">
+  <strong>Chief Market Cat — Internal Build Plan</strong> &nbsp;·&nbsp;
+  Stage: Phase 0 Scaffold Complete &nbsp;·&nbsp;
+  Next: MVP 1 Market Intelligence Brief &nbsp;·&nbsp;
+  Last updated July 2026 &nbsp;·&nbsp;
+  Base currency: AUD &nbsp;·&nbsp;
+  <span style="color:var(--light-red);">No live trading. Human review always required.</span>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1200" viewBox="0 0 1800 1200">
+  <defs>
+    <style>
+      .bg { fill: #f6f8fa; }
+      .title { font: 700 42px Arial, sans-serif; fill: #13234b; }
+      .subtitle { font: 400 20px Arial, sans-serif; fill: #52616b; }
+      .phase { fill: white; stroke: #cbd5e1; stroke-width: 2; rx: 18; }
+      .pin { fill: #ffd166; stroke: #9a6700; stroke-width: 3; rx: 18; }
+      .future { fill: #e7ecef; stroke: #8b8c89; stroke-width: 2; rx: 18; }
+      .phase-title { font: 700 23px Arial, sans-serif; fill: #274c77; }
+      .pin-title { font: 700 24px Arial, sans-serif; fill: #7a4f00; }
+      .text { font: 400 16px Arial, sans-serif; fill: #334155; }
+      .small { font: 400 14px Arial, sans-serif; fill: #475569; }
+      .label { font: 700 15px Arial, sans-serif; fill: white; }
+      .line { stroke: #274c77; stroke-width: 5; fill: none; }
+      .dot { fill: #274c77; stroke: white; stroke-width: 5; }
+      .arrow { stroke: #274c77; stroke-width: 4; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#274c77"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1800" height="1200"/>
+  <text class="title" x="70" y="72">Chief Market Cat - Phased Build Roadmap</text>
+  <text class="subtitle" x="70" y="108">Build like CSC: deterministic pipeline first, evidence and risk gates second, supervised trading only after proof.</text>
+
+  <path class="line" d="M180 220 L180 1040"/>
+  <circle class="dot" cx="180" cy="220" r="18"/>
+  <circle class="dot" cx="180" cy="360" r="18"/>
+  <circle class="dot" cx="180" cy="510" r="18"/>
+  <circle class="dot" cx="180" cy="660" r="18"/>
+  <circle class="dot" cx="180" cy="800" r="18"/>
+  <circle class="dot" cx="180" cy="930" r="18"/>
+  <circle class="dot" cx="180" cy="1040" r="18"/>
+
+  <rect class="phase" x="250" y="165" width="620" height="110"/>
+  <text class="phase-title" x="280" y="205">Phase 0 - Foundation</text>
+  <text class="text" x="280" y="238">Define markets, assets, timeframes, risk rules and schemas.</text>
+  <text class="small" x="280" y="262">Outputs: scope, source list, MarketItem, SignalItem, TradeMemo.</text>
+
+  <rect class="pin" x="250" y="305" width="620" height="125"/>
+  <text class="pin-title" x="280" y="345">PINNED MVP 1 - Market Intelligence Brief</text>
+  <text class="text" x="280" y="378">Fetch market/news/macro data, normalize, classify signals, brief.</text>
+  <text class="small" x="280" y="404">No live trading. No execution. Decision support only.</text>
+
+  <rect class="pin" x="250" y="455" width="620" height="135"/>
+  <text class="pin-title" x="280" y="495">PINNED DAY 2 - Evidence + Risk Gates</text>
+  <text class="text" x="280" y="528">Add evidence_state, verify_signal, risk_guardian and review queue.</text>
+  <text class="small" x="280" y="554">Weak high-impact signals are held. Trade ideas become paper candidates only.</text>
+
+  <rect class="phase" x="250" y="615" width="620" height="110"/>
+  <text class="phase-title" x="280" y="655">Phase 3 - Paper Trading</text>
+  <text class="text" x="280" y="688">Connect broker sandbox and generate human-approved trade memos.</text>
+  <text class="small" x="280" y="712">Track entries, exits, P&amp;L, mistakes and process quality.</text>
+
+  <rect class="phase" x="250" y="755" width="620" height="110"/>
+  <text class="phase-title" x="280" y="795">Phase 4 - Portfolio Layer</text>
+  <text class="text" x="280" y="828">Add exposure, correlation, concentration, drawdown and cash checks.</text>
+  <text class="small" x="280" y="852">Watchlist ranking becomes opportunity adjusted for portfolio risk.</text>
+
+  <rect class="future" x="250" y="890" width="620" height="110"/>
+  <text class="phase-title" x="280" y="930">Phase 5 - Permissioned Live Execution</text>
+  <text class="text" x="280" y="963">Broker gate, human approval, small size, strict max loss, kill switch.</text>
+  <text class="small" x="280" y="987">Live trading remains revocable and audited.</text>
+
+  <rect class="future" x="250" y="1030" width="620" height="110"/>
+  <text class="phase-title" x="280" y="1070">Phase 6 - Blue-Sky Multi-Agent System</text>
+  <text class="text" x="280" y="1103">Specialist agents coordinate, simulate scenarios and evaluate regimes.</text>
+  <text class="small" x="280" y="1127">Automation is narrow, supervised and reversible.</text>
+
+  <rect x="1010" y="165" width="650" height="260" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" rx="18"/>
+  <text class="phase-title" x="1045" y="210">MVP 1 Scope</text>
+  <text class="text" x="1045" y="250">Goal: know what matters in global markets today.</text>
+  <text class="text" x="1045" y="285">Outputs: regime, risk tone, top moves, top signals, held items.</text>
+  <text class="text" x="1045" y="320">Excludes: autonomous trading, leverage calls, options execution.</text>
+  <text class="text" x="1045" y="355">Success: useful brief with traceable evidence and no false urgency.</text>
+
+  <rect x="1010" y="465" width="650" height="285" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" rx="18"/>
+  <text class="phase-title" x="1045" y="510">Day 2 Scope</text>
+  <text class="text" x="1045" y="550">Goal: prevent weak evidence and bad risk from becoming trades.</text>
+  <text class="text" x="1045" y="585">Build: evidence_state, verify_signal, risk_gate, review queue.</text>
+  <text class="text" x="1045" y="620">Outputs: passed signals, held signals, paper-trade candidates.</text>
+  <text class="text" x="1045" y="655">Excludes: live execution and complex orchestration.</text>
+  <text class="text" x="1045" y="690">Success: every candidate has invalidation and risk boundary.</text>
+
+  <rect x="1010" y="790" width="650" height="250" fill="#274c77" stroke="#13234b" stroke-width="2" rx="18"/>
+  <text class="label" x="1045" y="835">Build Principle</text>
+  <text class="label" x="1045" y="875">Do not build an AI trader first.</text>
+  <text class="label" x="1045" y="915">Build an evidence-aware market monitor, then a paper-trade</text>
+  <text class="label" x="1045" y="950">decision system, then permissioned execution.</text>
+  <text class="label" x="1045" y="990">Risk Guardian gets veto power before broker execution.</text>
+
+  <path class="arrow" d="M870 365 C940 365, 945 295, 1010 295"/>
+  <path class="arrow" d="M870 520 C940 520, 945 610, 1010 610"/>
+</svg>

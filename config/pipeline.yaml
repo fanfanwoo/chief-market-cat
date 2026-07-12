@@ -1,0 +1,50 @@
+# CMC Pipeline Configuration
+
+run:
+  mode: scheduled
+  # 10:00 AM Sydney time chosen because it catches:
+  #   - US market close recap (overnight for Sydney, prior trading day is fully settled)
+  #   - ASX open (ASX opens ~10:00 AM AEST/AEDT, so brief lands right at market open)
+  # This timing gives the trader actionable intelligence before the day's first ASX moves.
+  schedule:
+    cron: "0 10 * * *"
+    timezone: "Australia/Sydney"
+  markets:
+    - US
+    - ASX
+  # US signals older than 12 hours at brief time get a staleness flag.
+  # US market closes at ~6 AM Sydney time; 12-hour window catches same-day close.
+  staleness_window_hours: 12
+
+normalize:
+  default_region: global
+  default_timeframe: 1d
+
+deduplicate:
+  fuzzy_title_threshold: 0.86
+  dedup_across_markets: false
+
+classification:
+  model: gemini-1.5-flash      # Free tier via Google AI Studio — fast enough for daily brief
+  max_body_chars: 2500
+  confidence_floor: 0.55
+  needs_review_threshold: 0.6  # Signals below this confidence get needs_review=True
+
+verify:
+  high_impact_threshold: 0.8
+  stale_data_minutes:
+    intraday: 15
+    daily: 1440
+
+scoring:
+  weights:
+    relevance: 0.25
+    evidence: 0.25
+    impact: 0.2
+    urgency: 0.15
+    liquidity: 0.1
+    confidence: 0.05
+
+summary:
+  top_signal_limit: 5
+  include_review_queue: true
