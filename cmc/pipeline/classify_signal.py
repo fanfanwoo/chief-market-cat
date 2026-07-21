@@ -1,4 +1,4 @@
-"""Classify normalized items into market signals using Gemini (gemini-1.5-flash).
+"""Classify normalized items into market signals using Gemini (gemini-flash-lite-latest).
 
 Falls back to NEUTRAL/no_trade_unclear if Gemini is unavailable or the key is a placeholder.
 """
@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+import time
 from datetime import datetime, timezone
 
 from cmc.config import is_placeholder
@@ -16,7 +17,7 @@ from cmc.schemas.signals import SignalItem
 
 log = logging.getLogger(__name__)
 
-GEMINI_MODEL = "gemini-1.5-flash"
+GEMINI_MODEL = "gemini-flash-lite-latest"
 NEEDS_REVIEW_THRESHOLD = 0.6
 
 _SYSTEM_PROMPT = """\
@@ -68,16 +69,30 @@ def classify_signals(items: list[NormalizedMarketItem], cfg: dict) -> list[Signa
         )
         return [_neutral_signal(item, reason="google_generativeai_not_installed") for item in items]
 
+    class_cfg = cfg.get("pipeline", {}).get("classification", {})
+    model_name = class_cfg.get("model", GEMINI_MODEL)
+    rpm = class_cfg.get("requests_per_minute", 10)
+    max_retries = class_cfg.get("max_retries", 3)
+    min_interval = 60.0 / rpm if rpm and rpm > 0 else 0.0
+
     genai.configure(api_key=gemini_key)
-    model = genai.GenerativeModel(GEMINI_MODEL)
+    model = genai.GenerativeModel(model_name)
 
     # Gather macro context once (FRED items) to inject into each classification prompt
     macro_context = _build_macro_context(items)
 
     results: list[SignalItem] = []
+    last_call = 0.0
     for item in items:
+        # Pace calls to stay under the free-tier requests-per-minute cap.
+        wait = min_interval - (time.monotonic() - last_call)
+        if wait > 0:
+            time.sleep(wait)
+        last_call = time.monotonic()
         try:
-            classified = _classify_one(model, item, macro_context, cfg)
+            classified = _classify_with_retry(
+                model, item, macro_context, cfg, max_retries
+            )
             results.append(classified)
         except Exception as exc:  # noqa: BLE001
             log.warning("classify_signal: Gemini failed for %s — %s", item.asset, exc)
@@ -85,6 +100,41 @@ def classify_signals(items: list[NormalizedMarketItem], cfg: dict) -> list[Signa
 
     log.info("classify_signal: classified %d signals", len(results))
     return results
+
+
+def _is_rate_limit(exc: Exception) -> bool:
+    """True if the exception is a Gemini 429 / quota-exhausted error."""
+    msg = str(exc).lower()
+    return "429" in msg or "quota" in msg or "resource_exhausted" in msg or "exhausted" in msg
+
+
+def _retry_delay_seconds(exc: Exception) -> float | None:
+    """Extract the server-suggested retry_delay (seconds) from a 429 error, if present."""
+    m = re.search(r"retry_delay\s*{\s*seconds:\s*(\d+)", str(exc))
+    return float(m.group(1)) if m else None
+
+
+def _classify_with_retry(
+    model: object,
+    item: NormalizedMarketItem,
+    macro_context: str,
+    cfg: dict,
+    max_retries: int,
+) -> SignalItem:
+    """Classify one item, retrying on rate-limit errors with backoff."""
+    for attempt in range(max_retries + 1):
+        try:
+            return _classify_one(model, item, macro_context, cfg)
+        except Exception as exc:  # noqa: BLE001
+            if not _is_rate_limit(exc) or attempt == max_retries:
+                raise
+            delay = _retry_delay_seconds(exc) or (2.0 ** attempt) * 5.0
+            log.info(
+                "classify_signal: rate-limited on %s, retry %d/%d in %.0fs",
+                item.asset, attempt + 1, max_retries, delay,
+            )
+            time.sleep(delay)
+    raise RuntimeError("unreachable")  # pragma: no cover
 
 
 def _classify_one(

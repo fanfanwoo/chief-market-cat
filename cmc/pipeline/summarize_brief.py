@@ -117,7 +117,7 @@ def _gemini_brief(
 
     genai.configure(api_key=api_key)
     pipeline_cfg = cfg.get("pipeline", {})
-    model_name = pipeline_cfg.get("classification", {}).get("model", "gemini-1.5-flash")
+    model_name = pipeline_cfg.get("classification", {}).get("model", "gemini-flash-lite-latest")
     model = genai.GenerativeModel(model_name)
 
     top_n = pipeline_cfg.get("summary", {}).get("top_signal_limit", 5)
@@ -233,7 +233,14 @@ def _send_email(
     part_html = MIMEText(html_body, "html", "utf-8")
     msg.attach(part_html)
 
-    context = ssl.create_default_context()
+    # Seed the CA store from certifi — python.org builds ship without system
+    # root certificates, which otherwise fails SMTP_SSL cert verification.
+    try:
+        import certifi
+
+        context = ssl.create_default_context(cafile=certifi.where())
+    except ImportError:
+        context = ssl.create_default_context()
     with smtplib.SMTP_SSL(GMAIL_SMTP_HOST, GMAIL_SMTP_PORT, context=context) as server:
         server.login(sender, app_password)
         server.sendmail(sender, [recipient], msg.as_string())

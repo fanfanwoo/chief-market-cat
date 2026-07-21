@@ -25,10 +25,12 @@ deduplicate:
   dedup_across_markets: false
 
 classification:
-  model: gemini-1.5-flash      # Free tier via Google AI Studio — fast enough for daily brief
+  model: gemini-flash-lite-latest      # Free tier via Google AI Studio — fast enough for daily brief
   max_body_chars: 2500
   confidence_floor: 0.55
   needs_review_threshold: 0.6  # Signals below this confidence get needs_review=True
+  requests_per_minute: 15      # Free-tier RPM cap; loop paces itself to stay under this
+  max_retries: 3               # Retries on 429 rate-limit, honoring server retry_delay
 
 verify:
   high_impact_threshold: 0.8

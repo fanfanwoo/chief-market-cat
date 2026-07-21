@@ -12,6 +12,7 @@ dependencies = [
   "requests>=2.31",
   "yfinance>=0.2",
   "google-generativeai>=0.7",
+  "certifi>=2024.0",
 ]
 
 [project.optional-dependencies]
