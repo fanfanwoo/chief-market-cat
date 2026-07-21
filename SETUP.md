@@ -6,13 +6,32 @@ Get CMC running in about 15 minutes with three free API keys.
 
 ## Step 1 — Install Python dependencies
 
+**Python 3.11+ required.** The system Python on macOS is often 3.10 or older — too old. Check first:
+
+```bash
+python3 --version
+```
+
+If it's below 3.11, use `python3.13` (or whichever 3.11+ you have installed via Homebrew or python.org):
+
 ```bash
 cd chief-market-cat
+python3.13 -m venv .venv
+source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-> **Note:** This installs the MVP 1 runtime dependencies from `pyproject.toml`,
-> including yfinance, requests, PyYAML, and the official Google Gemini SDK.
+All subsequent commands in this guide assume the venv is active. To reactivate in a new terminal:
+
+```bash
+source .venv/bin/activate
+```
+
+Or run without activating by calling `.venv/bin/python -m cmc.run` directly.
+
+> **Gemini SDK note:** `pyproject.toml` pins `google-generativeai`, which Google has deprecated in favour of `google-genai`. The old SDK still works for MVP 1 — migration to `google-genai` is a later task.
+
+✅ **Step 1 done when:** `pip install -e ".[dev]"` completes and `python -c "import yfinance, google.generativeai, yaml, requests"` raises no errors.
 
 ---
 
@@ -71,6 +90,7 @@ gmail_recipient: fan2010.wu@gmail.com   ← where to send the brief
 
 ```bash
 cd chief-market-cat
+source .venv/bin/activate   # if not already active
 python -m cmc.run
 ```
 
@@ -119,11 +139,11 @@ CMC is configured to run at **10:00 AM Sydney time** (AEST/AEDT), which catches:
 - US market close recap (prior day fully settled)
 - ASX open intelligence (right as the market opens)
 
-To set up the cron job:
+To set up the cron job (use the venv Python, not system Python):
 ```bash
 crontab -e
-# Add this line:
-0 10 * * * cd /path/to/chief-market-cat && python -m cmc.run >> data/logs/cron.log 2>&1
+# Add this line (replace /path/to with your actual path):
+0 10 * * * cd /path/to/chief-market-cat && .venv/bin/python -m cmc.run >> data/logs/cron.log 2>&1
 ```
 
 ---
@@ -132,10 +152,14 @@ crontab -e
 
 | Problem | Fix |
 |---------|-----|
-| `ModuleNotFoundError: yfinance` | `pip install yfinance` |
-| `ModuleNotFoundError: google.generativeai` | `pip install google-generativeai` |
+| `python3 --version` shows < 3.11 | Install Python 3.13 via [python.org](https://www.python.org/downloads/) or `brew install python@3.13`, then recreate the venv with `python3.13 -m venv .venv` |
+| `ModuleNotFoundError` after activating venv | Venv may not be active — run `source .venv/bin/activate` first |
+| `ModuleNotFoundError: yfinance` | `pip install -e ".[dev]"` inside the activated venv |
+| `ModuleNotFoundError: google.generativeai` | `pip install google-generativeai` inside venv |
+| `DeprecationWarning: google-generativeai` | Expected for MVP 1 — migration to `google-genai` is a later task |
 | Brief saved but no email | Check Gmail App Password is filled in (not a placeholder) |
 | No signals classified | Check `gemini_key` in secrets.yaml is a real key |
 | No news items | Check `newsapi_key` in secrets.yaml is a real key |
 | No macro data | Check `fred_key` in secrets.yaml is a real key |
 | ASX prices missing | yfinance uses `.AX` suffix — symbols like `CBA.AX` are correct |
+| Cron job does nothing | Use full path to venv Python: `/path/to/chief-market-cat/.venv/bin/python` |

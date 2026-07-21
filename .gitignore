@@ -19,3 +19,4 @@ data/journal/*
 !data/logs/.gitkeep
 !data/journal/.gitkeep
 
+*.egg-info/
