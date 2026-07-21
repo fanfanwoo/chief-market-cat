@@ -25,11 +25,15 @@ deduplicate:
   dedup_across_markets: false
 
 classification:
-  model: gemini-flash-lite-latest      # Free tier via Google AI Studio — fast enough for daily brief
+  # Pinned stable model names — avoids behavior drift from moving aliases.
+  # Classifier: lite model is fast enough for 16–25 items at free-tier RPM.
+  # Brief: full flash model for better prose (only one call/day).
+  model: gemini-3.1-flash-lite          # classifier — pinned; has free-tier quota on this key
+  brief_model: gemini-3.5-flash         # daily brief — pinned; better prose, one call/day
   max_body_chars: 2500
   confidence_floor: 0.55
   needs_review_threshold: 0.6  # Signals below this confidence get needs_review=True
-  requests_per_minute: 15      # Free-tier RPM cap; loop paces itself to stay under this
+  requests_per_minute: 15      # Stay under 30 RPM free cap with a safety margin
   max_retries: 3               # Retries on 429 rate-limit, honoring server retry_delay
 
 verify:

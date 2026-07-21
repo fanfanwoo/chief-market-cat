@@ -12,11 +12,13 @@ data/briefs/*
 data/review/*
 data/logs/*
 data/journal/*
+data/dashboard/*
 !data/raw/.gitkeep
 !data/signals/.gitkeep
 !data/briefs/.gitkeep
 !data/review/.gitkeep
 !data/logs/.gitkeep
 !data/journal/.gitkeep
+!data/dashboard/.gitkeep
 
 *.egg-info/

@@ -117,7 +117,9 @@ def _gemini_brief(
 
     genai.configure(api_key=api_key)
     pipeline_cfg = cfg.get("pipeline", {})
-    model_name = pipeline_cfg.get("classification", {}).get("model", "gemini-flash-lite-latest")
+    class_cfg = pipeline_cfg.get("classification", {})
+    # Prefer brief_model (higher quality); fall back to classifier model, then a safe default.
+    model_name = class_cfg.get("brief_model") or class_cfg.get("model", "gemini-3.5-flash")
     model = genai.GenerativeModel(model_name)
 
     top_n = pipeline_cfg.get("summary", {}).get("top_signal_limit", 5)

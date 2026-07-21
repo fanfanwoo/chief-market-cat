@@ -1,4 +1,4 @@
-"""Classify normalized items into market signals using Gemini (gemini-flash-lite-latest).
+"""Classify normalized items into market signals using Gemini (gemini-3.1-flash-lite).
 
 Falls back to NEUTRAL/no_trade_unclear if Gemini is unavailable or the key is a placeholder.
 """
@@ -17,7 +17,7 @@ from cmc.schemas.signals import SignalItem
 
 log = logging.getLogger(__name__)
 
-GEMINI_MODEL = "gemini-flash-lite-latest"
+GEMINI_MODEL = "gemini-3.1-flash-lite"
 NEEDS_REVIEW_THRESHOLD = 0.6
 
 _SYSTEM_PROMPT = """\
