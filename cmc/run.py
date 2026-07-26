@@ -15,6 +15,7 @@ from cmc.config import load_config
 from cmc.pipeline import alert_human as alert_human_stage
 from cmc.pipeline import classify_signal as classify_signal_stage
 from cmc.pipeline import deduplicate_events as deduplicate_events_stage
+from cmc.pipeline import compute_correlations as compute_correlations_stage
 from cmc.pipeline import evidence_state as evidence_state_stage
 from cmc.pipeline import fetch_market_data as fetch_market_data_stage
 from cmc.pipeline import fetch_news_macro as fetch_news_macro_stage
@@ -52,6 +53,17 @@ def run_pipeline() -> dict:
     log.info("[1/9] Fetching market data (yfinance)…")
     market_items = fetch_market_data_stage.fetch_market_data(cfg)
     log.info("      → %d price items", len(market_items))
+
+    # Compute + cache return correlations for the dashboard globe arcs.
+    # Best-effort: on failure the dashboard falls back to the structural prior.
+    corr_payload = compute_correlations_stage.compute_and_cache(cfg)
+    if corr_payload:
+        log.info(
+            "      → correlations: %d links (%dd window)",
+            len(corr_payload["links"]), corr_payload["window_days"],
+        )
+    else:
+        log.info("      → correlations: unavailable, dashboard will use structural prior")
 
     log.info("[2/9] Fetching news + macro (NewsAPI / FRED)…")
     news_macro_items = fetch_news_macro_stage.fetch_news_macro(cfg)

@@ -17,6 +17,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cmc.schemas.signals import ScoredSignal, SignalItem
+from cmc.pipeline import compute_correlations
 
 log = logging.getLogger(__name__)
 
@@ -87,8 +88,12 @@ def generate_dashboard(
     held_js = _build_held_js(held)
     sessions_js = _build_sessions_js(now_utc)
     events_js = _build_events_js(macro_items, today)
-    # Correlations: static for MVP1 (requires price history to compute properly)
-    correlations_js = "[]"
+    # Correlations: prefer real return correlation (cached by the
+    # compute_correlations stage); fall back to the structural prior. Only
+    # pairs where BOTH assets have a signal today are emitted, so every arc
+    # connects two live nodes on the globe.
+    corr_links, corr_label = _resolve_correlations(scored, cfg)
+    correlations_js = json.dumps(corr_links, indent=1)
 
     # Load template and substitute
     html = TEMPLATE_PATH.read_text(encoding="utf-8")
@@ -97,6 +102,13 @@ def generate_dashboard(
     html = _replace_js_const(html, "SESSIONS", sessions_js)
     html = _replace_js_const(html, "EVENTS", events_js)
     html = _replace_js_const(html, "CORRELATIONS", correlations_js)
+
+    # Label the arc legend with the actual correlation source/window (honest
+    # about whether arcs are price-derived or the structural fallback).
+    html = html.replace(
+        "arc = correlation (blue together · amber inverse)",
+        f"arc = {corr_label} (blue together · amber inverse)",
+    )
 
     # Update static text in the header
     html = html.replace(
@@ -145,6 +157,10 @@ def _build_signals_js(scored: list[ScoredSignal]) -> str:
             "signal_type": s.signal_type,
             "direction": _direction(s.direction),
             "confidence": round(s.confidence, 2),
+            # watchlist_score drives bar height on the globe + side panel.
+            # Fall back to confidence if the scorer left it at 0 so bars are
+            # never flat when a real signal exists.
+            "watchlist_score": round(s.watchlist_score or s.confidence, 2),
             "relevance_score": round(s.relevance_score, 2),
             "evidence_score": round(s.evidence_score, 2),
             "impact_score": round(s.impact_score, 2),
@@ -212,6 +228,70 @@ def _build_events_js(macro_items: list, today: str) -> str:
         "s": "system · CMC",
     })
     return json.dumps(events, indent=1)
+
+
+# ── Structural correlation prior ────────────────────────────────────────────────
+# Hand-specified structural relationships among the 16 watchlist symbols.
+# These are NOT computed from price history — they encode well-known co-movement
+# clusters (mega-cap tech, ASX financials, ASX materials, gold vs. risk) so the
+# globe can draw correlation arcs before a live price feed exists. Replace with
+# rolling return correlation once price history is available. Values are signed
+# structural strengths in [-1, 1].
+STRUCTURAL_CORR: list[tuple[str, str, float]] = [
+    # US mega-cap tech / broad-market cluster
+    ("SPY", "QQQ", 0.95), ("AAPL", "QQQ", 0.88), ("MSFT", "QQQ", 0.90),
+    ("NVDA", "QQQ", 0.85), ("AAPL", "MSFT", 0.82), ("MSFT", "NVDA", 0.78),
+    ("AAPL", "SPY", 0.85), ("MSFT", "SPY", 0.83), ("NVDA", "SPY", 0.72),
+    ("AMZN", "QQQ", 0.80), ("META", "QQQ", 0.78), ("GOOGL", "META", 0.72),
+    ("TSLA", "QQQ", 0.62),
+    # ASX financials cluster
+    ("CBA.AX", "WBC.AX", 0.90), ("CBA.AX", "ANZ.AX", 0.88), ("CBA.AX", "NAB.AX", 0.89),
+    ("WBC.AX", "ANZ.AX", 0.91), ("WBC.AX", "NAB.AX", 0.90), ("ANZ.AX", "NAB.AX", 0.92),
+    # ASX materials / global growth
+    ("BHP.AX", "RIO.AX", 0.88), ("BHP.AX", "SPY", 0.50), ("RIO.AX", "SPY", 0.48),
+    # Cross-region equity beta
+    ("SPY", "CBA.AX", 0.45),
+    # Gold vs. risk (inverse)
+    ("GLD", "SPY", -0.28), ("GLD", "QQQ", -0.24),
+]
+
+
+def _sig_id(asset: str) -> str:
+    """Match the id scheme used in _build_signals_js."""
+    return f"sig-{asset.lower().replace('.', '-')}"
+
+
+def _resolve_correlations(
+    scored: list[ScoredSignal], cfg: dict
+) -> tuple[list[list], str]:
+    """Return (arc_links, source_label).
+
+    Prefers real return correlation cached by the compute_correlations stage;
+    falls back to the structural prior when no fresh cache exists. Only pairs
+    where BOTH assets have a signal today are emitted, so every arc connects two
+    live globe nodes.
+
+    Signed values are kept: the template renders positive correlations blue
+    ("move together") and negative ones amber ("inverse"), scaling opacity/width
+    by magnitude. Inverse links (e.g. GLD vs. SPY) are often the most useful on
+    the map because they flag hedges/diversification.
+    """
+    present = {s.asset for s in scored}
+
+    payload = compute_correlations.load_correlations(cfg)
+    if payload and payload.get("links"):
+        source_pairs = payload["links"]  # [[sym, sym, r], ...] from prices
+        label = f"{payload.get('window_days', '?')}d return correlation"
+    else:
+        source_pairs = [[a, b, r] for a, b, r in STRUCTURAL_CORR]
+        label = "structural correlation"
+
+    links = [
+        [_sig_id(a), _sig_id(b), round(float(r), 2)]
+        for a, b, r in source_pairs
+        if a in present and b in present
+    ]
+    return links, label
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────

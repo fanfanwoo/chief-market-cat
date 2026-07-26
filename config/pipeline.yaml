@@ -54,3 +54,10 @@ scoring:
 summary:
   top_signal_limit: 5
   include_review_queue: true
+
+# Dashboard globe correlation arcs (computed from yfinance daily returns;
+# falls back to the structural prior in generate_dashboard.py when unavailable).
+correlations:
+  lookback_days: 120        # trading days in the rolling correlation window
+  min_abs_r: 0.30           # drop |r| below this to keep the globe readable
+  cache_max_age_hours: 36   # re-fetch if the cached matrix is older than this
