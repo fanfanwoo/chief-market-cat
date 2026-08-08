@@ -65,6 +65,10 @@ def _fetch_returns(symbols: list[str]):
             return None
         # Multi-symbol download → columns are a ("Close", SYMBOL) MultiIndex.
         close = raw["Close"] if "Close" in raw.columns.get_level_values(0) else raw
+        close = close.dropna(axis=1, how="all")
+        if close.empty:
+            log.warning("compute_correlations: all symbols unresolved — skipping")
+            return None
         returns = close.pct_change().dropna(how="all")
         return returns
     except Exception as e:  # network / parsing / rate-limit

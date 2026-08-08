@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.cmc.dashboard</string>
+
+    <!-- What to run: the daily wrapper script -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/wulingsenmacpro/Codex/Vibe trading/chief-market-cat/scripts/run_daily.sh</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/wulingsenmacpro/Codex/Vibe trading/chief-market-cat</string>
+
+    <!-- When: 07:00 local time, Monday(1) through Friday(5) -->
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>7</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Weekday</key><integer>2</integer><key>Hour</key><integer>7</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Weekday</key><integer>3</integer><key>Hour</key><integer>7</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Weekday</key><integer>4</integer><key>Hour</key><integer>7</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Weekday</key><integer>5</integer><key>Hour</key><integer>7</integer><key>Minute</key><integer>0</integer></dict>
+    </array>
+
+    <!-- Don't fire the moment it's loaded; wait for the scheduled time -->
+    <key>RunAtLoad</key>
+    <false/>
+
+    <!-- launchd-level stdout/stderr (the script also keeps its own dated log) -->
+    <key>StandardOutPath</key>
+    <string>/Users/wulingsenmacpro/Codex/Vibe trading/chief-market-cat/data/logs/launchd.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/wulingsenmacpro/Codex/Vibe trading/chief-market-cat/data/logs/launchd.err.log</string>
+</dict>
+</plist>

@@ -11,6 +11,7 @@ watchlist:
     - GOOGL   # Alphabet
     - META    # Meta Platforms
     - TSLA    # Tesla
+    - SPACEX  # SpaceX (private company placeholder)
     - SPY     # S&P 500 ETF
     - QQQ     # Nasdaq-100 ETF
     - GLD     # Gold ETF
@@ -31,6 +32,7 @@ sector_map:
   GOOGL: technology
   META: technology
   TSLA: consumer_discretionary
+  SPACEX: consumer_discretionary
   SPY: index
   QQQ: index
   GLD: commodities

@@ -15,7 +15,7 @@
     font:13px/1.45 "SF Pro Text",-apple-system,Segoe UI,Roboto,sans-serif}
   #app{display:grid;height:100vh;gap:10px;padding:10px;
     grid-template-columns:250px 1fr 330px;
-    grid-template-rows:58px 1fr 120px;
+    grid-template-rows:58px 1fr 172px;
     grid-template-areas:"hd hd hd" "left globe watch" "feed feed watch"}
   /* presentation / focus mode */
   body.focus #app{grid-template-columns:1fr;grid-template-rows:58px 1fr;
@@ -91,6 +91,12 @@
   .scorebar{height:4px;border-radius:3px;background:rgba(255,255,255,.07);margin-left:26px}
   .scorebar i{display:block;height:100%;border-radius:3px;background:var(--accent)}
   .wrow .decision{font-size:10px;margin:6px 0 0 26px;color:var(--dim)}
+  .empty-state{padding:12px 12px 4px}
+  .empty-state .es-title{font-size:13px;font-weight:700;color:var(--text)}
+  .empty-state .es-sub{font-size:11px;color:var(--dim);line-height:1.5;margin:6px 0 9px}
+  .es-tally{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px}
+  .es-tag{font-size:10.5px;padding:3px 7px;border-radius:6px;background:var(--panel2);color:var(--dim)}
+  .es-hd{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin:12px 0 2px}
   #held{flex:none;border-top:1px solid var(--border);padding:10px 14px;font-size:11px;color:var(--dim)}
   #held b{color:var(--unclear)}
   /* feed */
@@ -99,7 +105,7 @@
   .ev{flex:none;width:250px;background:var(--panel2);border:1px solid var(--border);
     border-radius:10px;padding:9px 11px}
   .ev time{font-size:10px;color:var(--accent);letter-spacing:.5px}
-  .ev p{font-size:12px;margin-top:3px}
+  .ev p{font-size:12px;margin-top:3px;line-height:1.4}
   .ev .src{font-size:10px;color:var(--dim);margin-top:4px}
 </style>
 </head>
@@ -354,15 +360,42 @@ document.getElementById("sessions").innerHTML = SESSIONS.map(s=>{
     <span class="n">${n||""}${n?" sig":""}</span></div>`;
 }).join("");
 
-/* watchlist */
-document.getElementById("watch-list").innerHTML = SIGNALS.map(s=>`
-  <div class="wrow" id="row-${s.id}" onclick="selectSignal('${s.id}')">
-    <div class="top"><span class="rank">${s.rank}</span><b>${s.asset}</b>
-      <span class="dirtag" style="background:${DIR_COLOR[s.direction]}22;color:${DIR_COLOR[s.direction]}">${s.direction.toUpperCase()}</span></div>
-    <div class="meta">${s.signal_type.replaceAll("_"," ")} · ${s.hub} · conf ${s.confidence.toFixed(2)}</div>
-    <div class="scorebar"><i style="width:${s.watchlist_score*100}%"></i></div>
-    <div class="decision">→ ${s.decision}</div>
-  </div>`).join("");
+/* watchlist — approved signals, or an informative held/review queue when none pass */
+(function renderWatchlist(){
+  const list = document.getElementById("watch-list");
+  if (SIGNALS.length){
+    list.innerHTML = SIGNALS.map(s=>`
+      <div class="wrow" id="row-${s.id}" onclick="selectSignal('${s.id}')">
+        <div class="top"><span class="rank">${s.rank}</span><b>${s.asset}</b>
+          <span class="dirtag" style="background:${DIR_COLOR[s.direction]}22;color:${DIR_COLOR[s.direction]}">${s.direction.toUpperCase()}</span></div>
+        <div class="meta">${s.signal_type.replaceAll("_"," ")} · ${s.hub} · conf ${s.confidence.toFixed(2)}</div>
+        <div class="scorebar"><i style="width:${s.watchlist_score*100}%"></i></div>
+        <div class="decision">→ ${s.decision}</div>
+      </div>`).join("");
+    return;
+  }
+  // No approved signals → explain why, from the held/review queue.
+  const groups = {};
+  HELD.forEach(h=>{ const k=((h.reason||"held for review").split(/[—(:]/)[0].trim())||"held for review"; groups[k]=(groups[k]||0)+1; });
+  const tally = Object.entries(groups).sort((a,b)=>b[1]-a[1])
+     .map(([k,v])=>`<span class="es-tag">${v}× ${k}</span>`).join("");
+  const rows = HELD.map(h=>`
+      <div class="wrow" style="cursor:default">
+        <div class="top"><b>${h.asset}</b>
+          <span class="dirtag" style="background:rgba(245,185,66,.15);color:var(--unclear)">HELD</span></div>
+        <div class="meta" style="margin-left:0">${h.reason||"held for review"}</div>
+      </div>`).join("");
+  list.innerHTML = `
+      <div class="empty-state">
+        <div class="es-title">No approved signals</div>
+        <div class="es-sub">All ${HELD.length} candidates were held for review — most upstream of the risk gate (confidence / macro). The system is preferring a missed opportunity over an uncontrolled loss, not erroring.</div>
+        <div class="es-tally">${tally}</div>
+        <div class="es-hd">Held / review queue</div>
+      </div>${rows}`;
+  // Avoid duplicating the queue in the footer when the empty state already shows it.
+  const footer = document.getElementById("held");
+  if (footer) footer.style.display = "none";
+})();
 
 /* feed */
 document.getElementById("feed-list").innerHTML = EVENTS.map(e=>`
