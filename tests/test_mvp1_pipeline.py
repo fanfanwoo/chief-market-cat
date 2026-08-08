@@ -113,6 +113,7 @@ def test_run_pipeline_wires_mvp1_flow(monkeypatch):
         return {"status": "captured", "path": path}
 
     monkeypatch.setattr("cmc.run.fetch_market_data_stage.fetch_market_data", lambda _cfg: [raw])
+    monkeypatch.setattr("cmc.run.compute_correlations_stage.compute_and_cache", lambda *_: None)
     monkeypatch.setattr("cmc.run.fetch_news_macro_stage.fetch_news_macro", lambda _cfg: [])
     monkeypatch.setattr("cmc.run.classify_signal_stage.classify_signals", fake_classify)
     monkeypatch.setattr("cmc.run.verify_signal_stage.verify_signals", fake_verify)

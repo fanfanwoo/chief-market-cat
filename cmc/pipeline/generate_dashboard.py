@@ -279,8 +279,11 @@ def _resolve_correlations(
     present = {s.asset for s in scored}
 
     payload = compute_correlations.load_correlations(cfg)
-    if payload and payload.get("links"):
-        source_pairs = payload["links"]  # [[sym, sym, r], ...] from prices
+    if payload is not None:
+        # A fresh, valid cache — even one with zero links (e.g. a genuinely
+        # low-correlation regime) — is real data and must not be silently
+        # swapped for the structural prior.
+        source_pairs = payload.get("links", [])  # [[sym, sym, r], ...] from prices
         label = f"{payload.get('window_days', '?')}d return correlation"
     else:
         source_pairs = [[a, b, r] for a, b, r in STRUCTURAL_CORR]

@@ -127,6 +127,9 @@ def compute_and_cache(cfg: dict, force: bool = False) -> dict | None:
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "window_days": corr_cfg["lookback_days"],
         "min_abs_r": corr_cfg["min_abs_r"],
+        # Recorded so load_correlations() can detect a config/watchlist change
+        # and invalidate the cache even if it's still within its age window.
+        "symbols": sorted(symbols),
         "source": "yfinance_returns",
         "links": links,
     }
@@ -140,13 +143,25 @@ def compute_and_cache(cfg: dict, force: bool = False) -> dict | None:
 
 
 def load_correlations(cfg: dict) -> dict | None:
-    """Return the cached payload if present and fresh, else None."""
+    """Return the cached payload if present, fresh, AND still built from the
+    current config + watchlist — else None. A payload computed under an old
+    min_abs_r/lookback_days or a since-changed watchlist is treated the same
+    as a stale one, even if it's within cache_max_age_hours."""
     corr_cfg = _corr_cfg(cfg)
     if not CACHE_PATH.exists():
         return None
     try:
         payload = json.loads(CACHE_PATH.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
+        return None
+    if (
+        payload.get("window_days") != corr_cfg["lookback_days"]
+        or payload.get("min_abs_r") != corr_cfg["min_abs_r"]
+    ):
+        log.info("compute_correlations: cache config changed — ignoring")
+        return None
+    if payload.get("symbols") != sorted(_watchlist_symbols(cfg)):
+        log.info("compute_correlations: watchlist changed — ignoring cache")
         return None
     try:
         age_h = (

@@ -13,6 +13,7 @@ data/review/*
 data/logs/*
 data/journal/*
 data/dashboard/*
+data/eval/*
 !data/raw/.gitkeep
 !data/signals/.gitkeep
 !data/briefs/.gitkeep
@@ -20,5 +21,6 @@ data/dashboard/*
 !data/logs/.gitkeep
 !data/journal/.gitkeep
 !data/dashboard/.gitkeep
+!data/eval/.gitkeep
 
 *.egg-info/
