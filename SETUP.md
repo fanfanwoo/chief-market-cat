@@ -120,6 +120,43 @@ If you want CMC to connect to an Alpaca paper account (for portfolio state):
 
 ---
 
+## Optional — LangSmith tracing
+
+Records one redacted run per classified signal so classifier behaviour can be
+reviewed over time. Off unless you switch it on. No secrets, prompts, headlines,
+article bodies, or rationale text are exported — see
+`docs/adr/0001-langsmith-tracing-boundary.md` for the exact field list.
+
+```bash
+.venv/bin/pip install -e '.[tracing]'
+
+cp config/langsmith.env.example config/langsmith.env
+chmod 600 config/langsmith.env
+$EDITOR config/langsmith.env      # paste your key from smith.langchain.com
+```
+
+`scripts/run_daily.sh` sources that file, so the scheduled run traces without a
+plist change. For interactive shells add to `~/.zshrc` (not `~/.zshenv` — the
+launchd job runs under bash and reads neither):
+
+```bash
+[ -f "<project>/config/langsmith.env" ] && . "<project>/config/langsmith.env"
+```
+
+Check it before trusting a live run — this sends nothing, it just prints the
+payload that would be transmitted:
+
+```bash
+.venv/bin/python scripts/trace_one_classification.py
+```
+
+Disable: `CMC_LANGSMITH_TRACING=0` for one run, or delete `config/langsmith.env`.
+
+Never put the key in `scripts/com.cmc.dashboard.plist` — that file is tracked in
+git.
+
+---
+
 ## Watchlist
 
 CMC monitors 16 symbols by default:

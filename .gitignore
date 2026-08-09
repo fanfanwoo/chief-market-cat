@@ -1,5 +1,9 @@
 .env
 config/secrets.yaml
+config/*.env
+
+# Locally generated agent tool permissions — machine-specific, not product code.
+.claude/
 .venv/
 __pycache__/
 *.pyc

@@ -6,6 +6,12 @@
 PROJ="/Users/wulingsenmacpro/Codex/Vibe trading/chief-market-cat"
 PY="$PROJ/.venv/bin/python"
 
+# Optional environment overrides (LangSmith tracing switches, etc).
+# launchd runs this under /bin/bash with a bare environment — it does not read
+# ~/.zshrc or ~/.zshenv — so anything the run needs has to be sourced here.
+# The file is gitignored; see config/langsmith.env.example.
+[ -f "$PROJ/config/langsmith.env" ] && . "$PROJ/config/langsmith.env"
+
 cd "$PROJ" || { echo "cannot cd to $PROJ"; exit 1; }
 mkdir -p data/logs
 
