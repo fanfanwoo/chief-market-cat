@@ -40,6 +40,18 @@ automatic paper trades.
 Project-level agent instructions now live in `docs/agent-instructions/`.
 Architecture images live in `docs/images/`.
 
+## Tracing
+
+Two layers, deliberately separate (see `docs/adr/0001-langsmith-tracing-boundary.md`):
+
+- `cmc/eval/tracing.py` — local `@trace` / `span()` harness writing
+  `data/eval/traces.jsonl`. Full fidelity, never leaves the machine.
+- `cmc/eval/langsmith_tracing.py` — optional remote export for
+  `classify_signal`. Allowlisted fields only, no secrets, no free text, no
+  `cfg`. Off unless `CMC_LANGSMITH_TRACING=1` and `LANGSMITH_API_KEY` are set.
+  Install with `pip install -e '.[tracing]'`. One controlled trace:
+  `python3 scripts/trace_one_classification.py`.
+
 ## Target Pipeline
 
 ```text

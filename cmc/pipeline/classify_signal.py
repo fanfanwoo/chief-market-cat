@@ -12,6 +12,7 @@ import time
 from datetime import datetime, timezone
 
 from cmc.config import is_placeholder
+from cmc.eval import langsmith_tracing as ls
 from cmc.schemas.items import NormalizedMarketItem
 from cmc.schemas.signals import SignalItem
 
@@ -54,10 +55,11 @@ def classify_signals(items: list[NormalizedMarketItem], cfg: dict) -> list[Signa
     """
     secrets = cfg.get("secrets", {})
     gemini_key = secrets.get("gemini_key", "")
+    configured_model = cfg.get("pipeline", {}).get("classification", {}).get("model", GEMINI_MODEL)
 
     if is_placeholder(gemini_key):
         log.info("classify_signal: Gemini key not configured — using NEUTRAL fallback for all signals")
-        return [_neutral_signal(item, reason="gemini_key_not_configured") for item in items]
+        return _fallback_signals(items, "gemini_key_not_configured", configured_model)
 
     # Import google.generativeai lazily so the module loads without the package installed
     try:
@@ -67,7 +69,7 @@ def classify_signals(items: list[NormalizedMarketItem], cfg: dict) -> list[Signa
             "classify_signal: google-generativeai not installed — "
             "run: pip install google-generativeai. Using NEUTRAL fallback."
         )
-        return [_neutral_signal(item, reason="google_generativeai_not_installed") for item in items]
+        return _fallback_signals(items, "google_generativeai_not_installed", configured_model)
 
     class_cfg = cfg.get("pipeline", {}).get("classification", {})
     model_name = class_cfg.get("model", GEMINI_MODEL)
@@ -81,6 +83,8 @@ def classify_signals(items: list[NormalizedMarketItem], cfg: dict) -> list[Signa
     # Gather macro context once (FRED items) to inject into each classification prompt
     macro_context = _build_macro_context(items)
 
+    macro_lines = len(macro_context.splitlines()) if macro_context else 0
+
     results: list[SignalItem] = []
     last_call = 0.0
     for item in items:
@@ -89,17 +93,63 @@ def classify_signals(items: list[NormalizedMarketItem], cfg: dict) -> list[Signa
         if wait > 0:
             time.sleep(wait)
         last_call = time.monotonic()
-        try:
-            classified = _classify_with_retry(
-                model, item, macro_context, cfg, max_retries
+        results.append(
+            _classify_item_traced(
+                model, item, macro_context, cfg, max_retries, model_name, macro_lines
             )
-            results.append(classified)
-        except Exception as exc:  # noqa: BLE001
-            log.warning("classify_signal: Gemini failed for %s — %s", item.asset, exc)
-            results.append(_neutral_signal(item, reason=f"gemini_error: {exc}"))
+        )
 
     log.info("classify_signal: classified %d signals", len(results))
     return results
+
+
+def _classify_item_traced(
+    model: object,
+    item: NormalizedMarketItem,
+    macro_context: str,
+    cfg: dict,
+    max_retries: int,
+    model_name: str,
+    macro_lines: int = 0,
+) -> SignalItem:
+    """Classify one item and emit an allowlisted LangSmith run.
+
+    The returned signal is identical whether or not tracing is enabled: the trace
+    is built from the finished signal, and `emit_classification` is a no-op when
+    tracing is off and swallows every error when it is on.
+    """
+    started = time.perf_counter()
+    try:
+        signal = _classify_with_retry(model, item, macro_context, cfg, max_retries)
+        outcome, fallback_category = "classified", None
+    except Exception as exc:  # noqa: BLE001
+        log.warning("classify_signal: Gemini failed for %s — %s", item.asset, exc)
+        signal = _neutral_signal(item, reason=f"gemini_error: {exc}")
+        outcome, fallback_category = "error", ls.error_category(exc)
+
+    ls.trace_classification(
+        item, signal,
+        model=model_name,
+        outcome=outcome,
+        latency_ms=(time.perf_counter() - started) * 1000,
+        fallback_category=fallback_category,
+        macro_context_lines=macro_lines,
+    )
+    return signal
+
+
+def _fallback_signals(
+    items: list[NormalizedMarketItem], reason: str, model_name: str
+) -> list[SignalItem]:
+    """NEUTRAL fallback for every item, each traced with a sanitized reason."""
+    signals = [_neutral_signal(item, reason=reason) for item in items]
+    for item, signal in zip(items, signals):
+        # cfg is not passed: only item + signal cross the tracing boundary.
+        ls.trace_classification(
+            item, signal, model=model_name, outcome="fallback",
+            latency_ms=0.0, fallback_category=reason,
+        )
+    return signals
 
 
 def _is_rate_limit(exc: Exception) -> bool:

@@ -11,13 +11,19 @@ dependencies = [
   "pyyaml>=6.0",
   "requests>=2.31",
   "yfinance>=0.2",
-  "google-generativeai>=0.7",
+  "google-generativeai>=0.7",   # legacy SDK — what classify_signal calls today
+  "google-genai>=1.0",          # supported Gemini SDK (successor); migration target
   "certifi>=2024.0",
 ]
 
 [project.optional-dependencies]
 dev = [
   "pytest>=8.0",
+]
+# Optional: remote trace export. Without it, classification runs unchanged and
+# cmc/eval/langsmith_tracing.py stays a no-op. See CMC_LANGSMITH_TRACING.
+tracing = [
+  "langsmith>=0.3",
 ]
 
 [tool.setuptools.packages.find]
