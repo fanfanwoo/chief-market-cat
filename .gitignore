@@ -4,6 +4,9 @@ config/*.env
 
 # Locally generated agent tool permissions — machine-specific, not product code.
 .claude/
+
+# Personal learning notes, not product docs.
+*-handover.md
 .venv/
 __pycache__/
 *.pyc
