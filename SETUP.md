@@ -152,6 +152,11 @@ payload that would be transmitted:
 
 Disable: `CMC_LANGSMITH_TRACING=0` for one run, or delete `config/langsmith.env`.
 
+**Region matters.** LangSmith runs separate US, EU and APAC deployments. A valid
+key sent to the wrong one returns a bare `403 Forbidden` — indistinguishable from
+a revoked key. Match `LANGSMITH_ENDPOINT` to the host in your smith.langchain.com
+URL; the SDK defaults to US.
+
 If traces don't appear, check the run log. Every run states
 `classify_signal: langsmith tracing enabled|disabled`, and the first export
 failure logs a warning with the HTTP status — a rejected key shows up as

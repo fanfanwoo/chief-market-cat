@@ -93,11 +93,18 @@ def check_credentials() -> bool:
     if resp.status_code == 200:
         print(f"credentials OK ({url})")
         return True
-    print(
-        f"LangSmith rejected the key: HTTP {resp.status_code}. "
-        "Generate a new one at smith.langchain.com → Settings → API Keys, "
-        "then update config/langsmith.env."
-    )
+    print(f"LangSmith rejected the key at {url}: HTTP {resp.status_code}.")
+    if resp.status_code == 403:
+        # A right key aimed at the wrong region 403s exactly like a bad key.
+        print(
+            "  403 means either a bad/revoked key OR the wrong region endpoint.\n"
+            "  Check the host of your smith.langchain.com URL and set LANGSMITH_ENDPOINT:\n"
+            "    US    https://api.smith.langchain.com        (default)\n"
+            "    EU    https://eu.api.smith.langchain.com\n"
+            "    APAC  https://apac.api.smith.langchain.com\n"
+            "  Otherwise create a Service Key (lsv2_sk_) in the workspace that owns\n"
+            "  the project, and put it in config/langsmith.env."
+        )
     return False
 
 
