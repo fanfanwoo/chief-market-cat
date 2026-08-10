@@ -68,6 +68,39 @@ def sample_item() -> NormalizedMarketItem:
     )
 
 
+def check_credentials() -> bool:
+    """Read-only auth probe. Creates nothing; catches a rejected key up front.
+
+    Worth doing because trace export is fail-open by design: a 403 produces a
+    clean pipeline log and zero traces, which looks identical to tracing being
+    switched off.
+    """
+    import os
+
+    import requests
+
+    url = os.environ.get("LANGSMITH_ENDPOINT", "https://api.smith.langchain.com")
+    try:
+        resp = requests.get(
+            f"{url}/api/v1/sessions",
+            headers={"x-api-key": os.environ["LANGSMITH_API_KEY"]},
+            params={"limit": 1},
+            timeout=15,
+        )
+    except Exception as exc:  # noqa: BLE001
+        print(f"cannot reach LangSmith: {type(exc).__name__}")
+        return False
+    if resp.status_code == 200:
+        print(f"credentials OK ({url})")
+        return True
+    print(
+        f"LangSmith rejected the key: HTTP {resp.status_code}. "
+        "Generate a new one at smith.langchain.com → Settings → API Keys, "
+        "then update config/langsmith.env."
+    )
+    return False
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--send", action="store_true", help="use the real LangSmith sink")
@@ -77,6 +110,9 @@ def main() -> int:
     if not ls.is_enabled():
         print(f"tracing is OFF — set {ls.ENABLE_ENV}=1 and {ls.API_KEY_ENV}=... to emit")
         return 1
+
+    if not check_credentials():
+        return 2
 
     if not args.send:
         ls.set_sink(lambda record: print(json.dumps(record, indent=2, default=str)))

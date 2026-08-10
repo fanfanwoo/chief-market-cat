@@ -57,6 +57,11 @@ def classify_signals(items: list[NormalizedMarketItem], cfg: dict) -> list[Signa
     gemini_key = secrets.get("gemini_key", "")
     configured_model = cfg.get("pipeline", {}).get("classification", {}).get("model", GEMINI_MODEL)
 
+    # State it out loud: a silent tracing failure used to look exactly like
+    # tracing being switched off. The daily log now says which one it is.
+    ls.reset_failure_state()
+    log.info("classify_signal: langsmith tracing %s", "enabled" if ls.is_enabled() else "disabled")
+
     if is_placeholder(gemini_key):
         log.info("classify_signal: Gemini key not configured — using NEUTRAL fallback for all signals")
         return _fallback_signals(items, "gemini_key_not_configured", configured_model)
@@ -99,7 +104,11 @@ def classify_signals(items: list[NormalizedMarketItem], cfg: dict) -> list[Signa
             )
         )
 
-    log.info("classify_signal: classified %d signals", len(results))
+    ls.flush()   # push queued runs before the process can exit
+    log.info(
+        "classify_signal: classified %d signals (trace exports failed: %d)",
+        len(results), ls.export_failure_count(),
+    )
     return results
 
 
@@ -149,6 +158,7 @@ def _fallback_signals(
             item, signal, model=model_name, outcome="fallback",
             latency_ms=0.0, fallback_category=reason,
         )
+    ls.flush()
     return signals
 
 
