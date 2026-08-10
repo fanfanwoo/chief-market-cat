@@ -152,6 +152,12 @@ payload that would be transmitted:
 
 Disable: `CMC_LANGSMITH_TRACING=0` for one run, or delete `config/langsmith.env`.
 
+If traces don't appear, check the run log. Every run states
+`classify_signal: langsmith tracing enabled|disabled`, and the first export
+failure logs a warning with the HTTP status — a rejected key shows up as
+`export failed (HTTPError, HTTP 403)`. Export failures never affect
+classification, so without those lines a bad key would be invisible.
+
 Never put the key in `scripts/com.cmc.dashboard.plist` — that file is tracked in
 git.
 

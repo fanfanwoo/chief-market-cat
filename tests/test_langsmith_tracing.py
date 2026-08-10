@@ -9,6 +9,7 @@ Design rules:
 """
 
 import json
+import logging
 from datetime import datetime, timezone
 
 import pytest
@@ -305,6 +306,71 @@ def test_sink_failure_does_not_break_classification(captured):
     signal = _classify_item_traced(_StubModel(), _item(), "", SENSITIVE_CFG, 0, "gemini-3.1-flash-lite")
     assert signal.signal_type == "trend_continuation"
     assert signal.confidence == pytest.approx(0.82)
+
+
+def test_first_export_failure_is_warned_once(captured, caplog):
+    """Fail-open must not mean fail-silent — a rejected key has to be visible."""
+    class FakeResponse:
+        status_code = 403
+
+    def rejecting_sink(_record):
+        exc = RuntimeError("Forbidden")
+        exc.response = FakeResponse()
+        raise exc
+
+    ls.reset_failure_state()
+    ls.set_sink(rejecting_sink)
+    with caplog.at_level(logging.WARNING, logger="cmc.eval.langsmith_tracing"):
+        for _ in range(5):
+            ls.emit_classification({"asset": "AAPL"}, {"outcome": "classified"})
+
+    warnings = [r for r in caplog.records if r.levelno == logging.WARNING]
+    assert len(warnings) == 1, "one warning per run, not one per item"
+    assert "HTTP 403" in warnings[0].getMessage()
+    assert ls.export_failure_count() == 5
+
+
+def test_failure_warning_leaks_nothing(captured, caplog):
+    """The warning names the exception type and status, never the response body."""
+    class FakeResponse:
+        status_code = 403
+        text = f"denied for key {SECRET_VALUES[0]}"
+
+    def rejecting_sink(_record):
+        exc = RuntimeError(f"403 for https://api.smith.langchain.com?key={SECRET_VALUES[0]}")
+        exc.response = FakeResponse()
+        raise exc
+
+    ls.reset_failure_state()
+    ls.set_sink(rejecting_sink)
+    with caplog.at_level(logging.DEBUG, logger="cmc.eval.langsmith_tracing"):
+        ls.emit_classification({"asset": "AAPL"}, {"outcome": "classified"})
+
+    blob = " ".join(r.getMessage() for r in caplog.records)
+    assert SECRET_VALUES[0] not in blob
+    assert "https://" not in blob
+
+
+def test_classify_signals_reports_trace_health(monkeypatch, caplog):
+    """The daily log states whether tracing ran and how many exports failed."""
+    monkeypatch.setenv(ls.ENABLE_ENV, "1")
+    monkeypatch.setenv(ls.API_KEY_ENV, "lsv2_pt_fake_key_for_tests")
+    ls.set_sink(lambda _record: (_ for _ in ()).throw(RuntimeError("down")))
+    try:
+        with caplog.at_level(logging.INFO, logger="cmc.pipeline.classify_signal"):
+            classify_signals([_item()], {**SENSITIVE_CFG, "secrets": {"gemini_key": "YOUR_GEMINI_KEY"}})
+    finally:
+        ls.set_sink(None)
+
+    messages = [r.getMessage() for r in caplog.records]
+    assert any("langsmith tracing enabled" in m for m in messages)
+    assert ls.export_failure_count() == 1
+
+
+def test_flush_is_safe_without_a_client():
+    ls.reset_failure_state()
+    ls.flush()   # no client constructed — must be a silent no-op
+    assert ls.export_failure_count() == 0
 
 
 def test_gemini_is_not_called_more_than_once_per_item(captured):

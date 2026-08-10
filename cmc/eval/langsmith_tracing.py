@@ -86,6 +86,7 @@ ALLOWED_OUTPUT_FIELDS = frozenset({
 TraceSink = Callable[[dict], None]
 _sink: TraceSink | None = None      # None → the real LangSmith sink
 _client: Any = None                 # lazily-created langsmith.Client
+_export_failures = 0                # first failure is surfaced, rest stay quiet
 
 
 def is_enabled() -> bool:
@@ -245,7 +246,55 @@ def emit_classification(inputs: dict, outputs: dict) -> None:
         }
         (_sink or _langsmith_sink)(record)
     except Exception as exc:  # noqa: BLE001 — tracing must never break the pipeline
-        log.debug("langsmith_tracing: emit failed (%s) — ignored", type(exc).__name__)
+        _note_failure(exc)
+
+
+def _note_failure(exc: BaseException) -> None:
+    """Surface the FIRST export failure of a run at WARNING, the rest at DEBUG.
+
+    Fail-open must not mean fail-silent: a rejected API key previously produced a
+    completely clean pipeline log and zero traces, which is indistinguishable
+    from tracing being switched off. One warning per run makes it visible without
+    spamming the log once per classified item.
+
+    Only the exception type and HTTP status are logged — never the response body,
+    URL, or headers, any of which can carry the API key.
+    """
+    global _export_failures
+    _export_failures += 1
+    status = getattr(getattr(exc, "response", None), "status_code", None)
+    detail = f"{type(exc).__name__}" + (f", HTTP {status}" if status else "")
+    if _export_failures == 1:
+        log.warning(
+            "langsmith_tracing: export failed (%s) — traces will be missing for this run. "
+            "Classification is unaffected. Check LANGSMITH_API_KEY.", detail,
+        )
+    else:
+        log.debug("langsmith_tracing: export failed again (%s)", detail)
+
+
+def export_failure_count() -> int:
+    """How many exports failed since the last reset (0 = healthy)."""
+    return _export_failures
+
+
+def reset_failure_state() -> None:
+    global _export_failures
+    _export_failures = 0
+
+
+def flush() -> None:
+    """Push any queued runs before the process exits.
+
+    The LangSmith client batches in a background thread; a short-lived pipeline
+    can exit with runs still queued. Fail-open like everything else here.
+    """
+    if _client is None:
+        return
+    try:
+        _client.flush()
+    except Exception as exc:  # noqa: BLE001
+        _note_failure(exc)
 
 
 def _langsmith_sink(record: dict) -> None:
